@@ -354,11 +354,10 @@ export function getWeekSTier(apps: MiniApp[], reviews: StoredReview[], anchor = 
     );
 }
 
-export function buildShareCopy(
+export function getShareEntriesForTemplate(
   template: ShareTemplate,
   apps: MiniApp[],
   reviews: StoredReview[],
-  locale: AppLocale = "en",
 ) {
   const entries = buildTierEntries(apps, reviews);
   const rankedEntries = [...entries]
@@ -371,8 +370,28 @@ export function buildShareCopy(
     })
     .slice(0, 3);
 
-  const sTierEntries = entries.filter((entry) => entry.review.tier === "S").slice(0, 4);
-  const hiddenGemEntry = rankedEntries[2] ?? rankedEntries[0] ?? null;
+  if (template === "top-3") {
+    return rankedEntries;
+  }
+
+  if (template === "hidden-gem") {
+    const hiddenGemEntry = rankedEntries[2] ?? rankedEntries[0] ?? null;
+    return hiddenGemEntry ? [hiddenGemEntry] : [];
+  }
+
+  return entries
+    .filter((entry) => entry.review.tier === "S")
+    .sort((left, right) => right.review.updatedAt.localeCompare(left.review.updatedAt))
+    .slice(0, 4);
+}
+
+export function buildShareCopy(
+  template: ShareTemplate,
+  apps: MiniApp[],
+  reviews: StoredReview[],
+  locale: AppLocale = "en",
+) {
+  const shareEntries = getShareEntriesForTemplate(template, apps, reviews);
 
   const appendLinks = (summary: string, linkedEntries: TierEntry[]) => {
     if (!linkedEntries.length) {
@@ -386,40 +405,40 @@ export function buildShareCopy(
   if (locale === "ja") {
     if (template === "top-3") {
       return appendLinks(
-        `いまの App Ladder Top 3: ${rankedEntries.map((entry) => entry.app.name).join("、") || "まだランキング中。"}`,
-        rankedEntries,
+        `いまの App Ladder Top 3: ${shareEntries.map((entry) => entry.app.name).join("、") || "まだランキング中。"}`,
+        shareEntries,
       );
     }
 
     if (template === "hidden-gem") {
       return appendLinks(
-        `App Ladder の隠れ推し: ${hiddenGemEntry?.app.name ?? "まだ探索中。"}`,
-        hiddenGemEntry ? [hiddenGemEntry] : [],
+        `App Ladder の隠れ推し: ${shareEntries[0]?.app.name ?? "まだ探索中。"}`,
+        shareEntries,
       );
     }
 
     return appendLinks(
-      `今週の S tier: ${sTierEntries.map((entry) => entry.app.name).join("、") || "まだ S tier はありません。"}`,
-      sTierEntries,
+      `今週の S tier: ${shareEntries.map((entry) => entry.app.name).join("、") || "まだ S tier はありません。"}`,
+      shareEntries,
     );
   }
 
   if (template === "top-3") {
     return appendLinks(
-      `My App Ladder top 3 right now: ${rankedEntries.map((entry) => entry.app.name).join(", ") || "still ranking."}`,
-      rankedEntries,
+      `My App Ladder top 3 right now: ${shareEntries.map((entry) => entry.app.name).join(", ") || "still ranking."}`,
+      shareEntries,
     );
   }
 
   if (template === "hidden-gem") {
     return appendLinks(
-      `Hidden gem from my App Ladder board: ${hiddenGemEntry?.app.name ?? "still looking."}`,
-      hiddenGemEntry ? [hiddenGemEntry] : [],
+      `Hidden gem from my App Ladder board: ${shareEntries[0]?.app.name ?? "still looking."}`,
+      shareEntries,
     );
   }
 
   return appendLinks(
-    `This week's S tier on App Ladder: ${sTierEntries.map((entry) => entry.app.name).join(", ") || "none yet, still climbing."}`,
-    sTierEntries,
+    `This week's S tier on App Ladder: ${shareEntries.map((entry) => entry.app.name).join(", ") || "none yet, still climbing."}`,
+    shareEntries,
   );
 }

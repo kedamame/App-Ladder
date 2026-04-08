@@ -8,6 +8,7 @@ import clsx from "clsx";
 import { appConfig } from "@/lib/config";
 import {
   buildShareCopy,
+  getShareEntriesForTemplate,
   tiers,
   type AppLocale,
   type CustomMiniAppInput,
@@ -115,15 +116,8 @@ export function AppLadderShell({
   );
 
   const shareEntries = useMemo(
-    () =>
-      board.flatMap((column) =>
-        [...column.entries].sort((left, right) =>
-          sortOrder === "newest"
-            ? right.review.updatedAt.localeCompare(left.review.updatedAt)
-            : left.review.updatedAt.localeCompare(right.review.updatedAt),
-        ),
-      ),
-    [board, sortOrder],
+    () => getShareEntriesForTemplate(shareTemplate, apps, reviews),
+    [apps, reviews, shareTemplate],
   );
 
   const visibleApps = useMemo(() => {
@@ -894,7 +888,7 @@ export function AppLadderShell({
               </div>
               <div className="weekly-stack">
                 {shareEntries.length ? (
-                  shareEntries.slice(0, 4).map((entry) => (
+                  shareEntries.map((entry) => (
                     <div key={entry.review.id} className="weekly-item weekly-item-refined">
                       <AppSticker app={entry.app} compact />
                       <div>

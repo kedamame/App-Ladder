@@ -77,6 +77,7 @@ export function AppLadderShell({
   const [catalogQuery, setCatalogQuery] = useState("");
   const [customAppDraft, setCustomAppDraft] =
     useState<CustomMiniAppInput>(emptyCustomAppDraft);
+  const [isAutofilling, setIsAutofilling] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
   const shareCardRef = useRef<HTMLDivElement>(null);
   const text = uiCopy[locale];
@@ -230,6 +231,54 @@ export function AppLadderShell({
     setCatalogStatus(text.review.addAnySaved(result.app.name));
     setCatalogQuery("");
     setCustomAppDraft(emptyCustomAppDraft);
+  }
+
+  async function handleAutofillFromUrl() {
+    if (!customAppDraft.externalUrl.trim()) {
+      setCatalogStatus(text.review.autofillInvalid);
+      return;
+    }
+
+    setIsAutofilling(true);
+    setCatalogStatus(text.review.autofillLoading);
+
+    try {
+      const response = await fetch("/api/miniapp-metadata", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          url: customAppDraft.externalUrl,
+        }),
+      });
+
+      const payload = (await response.json()) as {
+        error?: string;
+        imageUrl?: string;
+        name?: string;
+        resolvedUrl?: string;
+        shortDescription?: string;
+      };
+
+      if (!response.ok) {
+        setCatalogStatus(payload.error || text.review.autofillFailed);
+        return;
+      }
+
+      setCustomAppDraft((current) => ({
+        ...current,
+        externalUrl: payload.resolvedUrl || current.externalUrl,
+        imageUrl: payload.imageUrl || current.imageUrl,
+        name: payload.name || current.name,
+        shortDescription: payload.shortDescription || current.shortDescription,
+      }));
+      setCatalogStatus(text.review.autofillSuccess);
+    } catch {
+      setCatalogStatus(text.review.autofillFailed);
+    } finally {
+      setIsAutofilling(false);
+    }
   }
 
   return (
@@ -483,6 +532,16 @@ export function AppLadderShell({
                       value={customAppDraft.externalUrl}
                     />
                   </label>
+                  <div className="autofill-row input-field-full">
+                    <button
+                      className="button-secondary"
+                      disabled={isAutofilling}
+                      onClick={handleAutofillFromUrl}
+                      type="button"
+                    >
+                      {isAutofilling ? text.review.autofillLoading : text.review.autofill}
+                    </button>
+                  </div>
                   <label className="input-field">
                     <span className="field-label">{text.review.nameLabel}</span>
                     <input

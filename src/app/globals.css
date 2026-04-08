@@ -697,6 +697,11 @@ img {
   grid-column: 1 / -1;
 }
 
+.autofill-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .catalog-chip {
   display: inline-flex;
   align-items: center;

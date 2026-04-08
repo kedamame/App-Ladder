@@ -42,6 +42,7 @@ export type TierEntry = {
 };
 
 export type ShareTemplate = "s-tier" | "top-3" | "hidden-gem";
+export type AppLocale = "en" | "ja";
 
 export const miniApps: MiniApp[] = [
   {
@@ -329,7 +330,11 @@ export function getWeekSTier(reviews: StoredReview[], anchor = todayKey()) {
     );
 }
 
-export function buildShareCopy(template: ShareTemplate, reviews: StoredReview[]) {
+export function buildShareCopy(
+  template: ShareTemplate,
+  reviews: StoredReview[],
+  locale: AppLocale = "en",
+) {
   const entries = buildTierEntries(reviews);
   const topThree = [...entries]
     .sort((left, right) => {
@@ -346,6 +351,18 @@ export function buildShareCopy(template: ShareTemplate, reviews: StoredReview[])
     .filter((entry) => entry.review.tier === "S")
     .slice(0, 4)
     .map((entry) => entry.app.name);
+
+  if (locale === "ja") {
+    if (template === "top-3") {
+      return `今の App Ladder Top 3: ${topThree.join("、") || "まだランキング作成中。"} `;
+    }
+
+    if (template === "hidden-gem") {
+      return `App Ladder の隠れ良作: ${topThree[2] ?? topThree[0] ?? "まだ発掘中。"} `;
+    }
+
+    return `今週の S tier: ${sTierNames.join("、") || "まだ S tier はありません。"} `;
+  }
 
   if (template === "top-3") {
     return `My App Ladder top 3 right now: ${topThree.join(", ") || "still ranking."}`;

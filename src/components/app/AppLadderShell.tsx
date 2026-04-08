@@ -7,12 +7,14 @@ import { toPng } from "html-to-image";
 import clsx from "clsx";
 import { appConfig } from "@/lib/config";
 import {
+  buildShareCopy,
   tiers,
+  type AppLocale,
   type MetricKey,
   type MiniApp,
-  type ShareTemplate,
 } from "@/lib/app-ladder";
 import { useFarcasterMiniApp } from "@/lib/farcaster";
+import { sections, shareOptions, uiCopy } from "@/lib/ui-copy";
 import { useAppLadderState } from "@/lib/use-app-ladder-state";
 
 type AppLadderShellProps = {
@@ -20,24 +22,13 @@ type AppLadderShellProps = {
   initialDay?: string;
 };
 
-const sections = [
-  { id: "today", label: "Today" },
-  { id: "review", label: "Review" },
-  { id: "ladder", label: "Ladder" },
-  { id: "share", label: "Share" },
-] as const;
+const localeStorageKey = "app-ladder-locale:v1";
 
 const metricLabels: Record<MetricKey, string> = {
-  fun: "Fun",
-  polish: "Polish",
-  comeBack: "Come back",
+  fun: "fun",
+  polish: "polish",
+  comeBack: "comeBack",
 };
-
-const shareOptions: { id: ShareTemplate; label: string }[] = [
-  { id: "s-tier", label: "This week's S tier" },
-  { id: "top-3", label: "Top 3" },
-  { id: "hidden-gem", label: "Hidden gem" },
-];
 
 export function AppLadderShell({
   initialAppId,
@@ -52,13 +43,12 @@ export function AppLadderShell({
     draft,
     loadError,
     recentEntries,
+    reviews,
     reviewCount,
-    saveMessage,
     selectedApp,
     selectedAppId,
     setDraft,
     setSelectedAppId,
-    shareCopy,
     shareTemplate,
     setShareTemplate,
     saveReview,
@@ -69,16 +59,23 @@ export function AppLadderShell({
     dismissLoadError,
     isLoaded,
   } = useAppLadderState(initialAppId, initialDay);
+  const [locale, setLocale] = useState<AppLocale>("en");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [reviewStatus, setReviewStatus] = useState("");
   const [shareStatus, setShareStatus] = useState("");
   const shareCardRef = useRef<HTMLDivElement>(null);
+  const text = uiCopy[locale];
 
   const surface = isLoading
-    ? "Detecting surface"
+    ? text.detectSurface
     : isInMiniApp
       ? "Farcaster miniapp"
       : "Browser / Base App";
+  const shareCopy = useMemo(
+    () => buildShareCopy(shareTemplate, reviews, locale),
+    [locale, reviews, shareTemplate],
+  );
 
   const filteredBoard = useMemo(
     () =>
@@ -103,24 +100,48 @@ export function AppLadderShell({
   );
 
   useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(localeStorageKey);
+      if (stored === "en" || stored === "ja") {
+        setLocale(stored);
+      }
+    } catch {
+      // Keep English as the default when storage is unavailable.
+    }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    try {
+      window.localStorage.setItem(localeStorageKey, locale);
+    } catch {
+      // Ignore locale persistence failures.
+    }
+  }, [locale]);
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     params.set("app", selectedApp.id);
     params.set("day", dayKey);
     window.history.replaceState({}, "", `?${params.toString()}`);
   }, [dayKey, selectedApp.id]);
 
+  function getCategoryLabel(category: string) {
+    return category === "All" ? text.ladder.all : category;
+  }
+
   async function handleCopyShare() {
     try {
       await navigator.clipboard.writeText(shareCopy);
-      setShareStatus("Share copy copied.");
+      setShareStatus(text.share.copied);
     } catch {
-      setShareStatus("Clipboard copy was blocked in this environment.");
+      setShareStatus(text.share.blocked);
     }
   }
 
   async function handleDownloadShareCard() {
     if (!shareCardRef.current) {
-      setShareStatus("Share card preview is not ready yet.");
+      setShareStatus(text.share.notReady);
       return;
     }
 
@@ -133,115 +154,129 @@ export function AppLadderShell({
       anchor.download = `app-ladder-${dayKey}.png`;
       anchor.href = dataUrl;
       anchor.click();
-      setShareStatus("PNG saved from the share preview.");
+      setShareStatus(text.share.pngSaved);
     } catch {
-      setShareStatus("PNG export failed in this browser.");
+      setShareStatus(text.share.pngFailed);
     }
+  }
+
+  function handleSaveReview() {
+    saveReview();
+    setReviewStatus(text.review.saved(selectedApp.name, dayKey));
   }
 
   return (
     <main className={clsx("app-shell", streak >= 7 && "app-shell-streak-7")}>
       {loadError ? (
         <aside className="status-banner status-banner-warning">
-          <p>{loadError}</p>
+          <p>{text.loadError}</p>
           <button onClick={dismissLoadError} type="button">
-            Dismiss
+            {text.dismiss}
           </button>
         </aside>
       ) : null}
 
-      <section className="hero-card">
+      <section className="hero-card hero-card-refined">
+        <div className="hero-topbar">
+          <p className="eyebrow">{text.heroEyebrow}</p>
+          <div className="locale-switcher" role="group" aria-label="Language switcher">
+            <button
+              className={clsx("locale-button", locale === "en" && "locale-button-active")}
+              onClick={() => setLocale("en")}
+              type="button"
+            >
+              EN
+            </button>
+            <button
+              className={clsx("locale-button", locale === "ja" && "locale-button-active")}
+              onClick={() => setLocale("ja")}
+              type="button"
+            >
+              JP
+            </button>
+          </div>
+        </div>
         <div className="hero-copy">
-          <p className="eyebrow">App Ladder</p>
-          <h1>One Base miniapp a day. Your own tier board by the weekend.</h1>
-          <p className="hero-text">
-            A solo miniapp journal with a sticker-board attitude. Review in five
-            minutes, keep the data local, and share only when the board looks
-            sharp enough.
-          </p>
-          <div className="today-spotlight">
+          <h1>{text.heroTitle}</h1>
+          <p className="hero-text">{text.heroText}</p>
+          <div className="today-spotlight today-spotlight-refined">
             <AppSticker app={todayPick} />
             <div>
-              <p className="mini-profile-label">Today&apos;s one pick</p>
+              <p className="mini-profile-label">{text.todayPick}</p>
               <h2>{todayPick.name}</h2>
               <p>{todayPick.shortDescription}</p>
             </div>
           </div>
           <div className="hero-actions">
             <a className="button-primary" href="#review">
-              Start today&apos;s review
+              {text.startReview}
             </a>
             <a className="button-secondary" href="#share">
-              Build a share card
+              {text.openShare}
             </a>
           </div>
         </div>
-        <div className="hero-panel">
-          <div className="surface-chip">
+        <div className="hero-panel hero-panel-refined">
+          <div className="surface-chip surface-chip-refined">
             <span className="surface-dot" />
             {surface}
           </div>
           <div className="mini-profile">
-            <p className="mini-profile-label">Current session</p>
-            <strong>{user?.displayName ?? user?.username ?? "Guest collector"}</strong>
+            <p className="mini-profile-label">{text.currentSession}</p>
+            <strong>{user?.displayName ?? user?.username ?? text.guest}</strong>
             <span>
-              {user?.fid
-                ? `FID ${user.fid}`
-                : "No login required for the MVP core loop"}
+              {user?.fid ? `FID ${user.fid}` : text.guestCopy}
             </span>
           </div>
           <div className="status-stack">
             <StatusPill
-              label="Today"
-              value={todayReview ? `${todayReview.tier} tier locked` : "No review yet"}
+              label={text.statuses.today}
+              value={todayReview ? text.locked(todayReview.tier) : text.noReview}
             />
-            <StatusPill label="Streak" value={`${streak} day`} />
-            <StatusPill label="Board" value={`${reviewCount} reviews`} />
+            <StatusPill label={text.statuses.streak} value={text.days(streak)} />
+            <StatusPill label={text.statuses.board} value={text.reviews(reviewCount)} />
           </div>
           <dl className="config-list">
             <div>
-              <dt>App URL</dt>
+              <dt>{text.config.appUrl}</dt>
               <dd>{appConfig.appUrl}</dd>
             </div>
             <div>
-              <dt>Base App ID</dt>
+              <dt>{text.config.appId}</dt>
               <dd>{appConfig.baseAppId}</dd>
             </div>
             <div>
-              <dt>Surface</dt>
+              <dt>{text.config.surface}</dt>
               <dd>{surface}</dd>
             </div>
             <div>
-              <dt>Day key</dt>
+              <dt>{text.config.dayKey}</dt>
               <dd>{dayKey}</dd>
             </div>
           </dl>
         </div>
       </section>
 
-      <nav className="section-nav" aria-label="App sections">
+      <nav className="section-nav section-nav-refined" aria-label="App sections">
         {sections.map((section) => (
           <a key={section.id} href={`#${section.id}`}>
-            {section.label}
+            {text.nav[section.key]}
           </a>
         ))}
       </nav>
 
       <section className="grid-shell">
-        <article id="today" className="board-card board-card-wide">
-          <div className="card-kicker">Today</div>
+        <article id="today" className="board-card board-card-wide board-card-refined">
+          <div className="card-kicker">{text.today.kicker}</div>
           <div className="section-heading">
             <div>
-              <h2>Home base for the daily loop</h2>
-              <p>
-                Pick one app, leave a sharp note, and let the ladder grow at a
-                human pace. No account, no backend, no pressure.
-              </p>
+              <h2>{text.today.title}</h2>
+              <p>{text.today.body}</p>
             </div>
           </div>
           <div className="overview-grid">
-            <div className="feature-tile">
-              <p className="mini-profile-label">Today&apos;s review target</p>
+            <div className="feature-tile feature-tile-refined">
+              <p className="mini-profile-label">{text.today.target}</p>
               <div className="tile-row">
                 <AppSticker app={todayPick} />
                 <div>
@@ -251,60 +286,51 @@ export function AppLadderShell({
               </div>
               <p className="muted-copy">{todayPick.shortDescription}</p>
             </div>
-            <div className="feature-tile">
-              <p className="mini-profile-label">Daily status</p>
+            <div className="feature-tile feature-tile-refined">
+              <p className="mini-profile-label">{text.today.status}</p>
               {todayReview ? (
                 <div className="review-snapshot">
-                  <strong>{todayReview.tier} tier saved today</strong>
-                  <p>{todayReview.note || "No short note yet."}</p>
+                  <strong>{text.today.savedToday(todayReview.tier)}</strong>
+                  <p>{todayReview.note || text.today.noShortNote}</p>
                 </div>
               ) : (
-                <EmptyState
-                  title="Today is still open"
-                  body="You have not saved a review for this day yet. Pick one app and pin it to the board."
-                />
+                <EmptyState title={text.today.openTitle} body={text.today.openBody} />
               )}
             </div>
-            <div className="feature-tile">
-              <p className="mini-profile-label">Recent reviews</p>
+            <div className="feature-tile feature-tile-refined">
+              <p className="mini-profile-label">{text.today.recent}</p>
               {recentEntries.length ? (
                 <div className="review-list">
                   {recentEntries.map(({ app, review }) => (
                     <button
                       key={review.id}
-                      className="review-list-item"
+                      className="review-list-item review-list-item-refined"
                       onClick={() => setSelectedAppId(app.id)}
                       type="button"
                     >
                       <span className="tier-badge">{review.tier}</span>
                       <div>
                         <strong>{app.name}</strong>
-                        <p>{review.note || "Freshly ranked."}</p>
+                        <p>{review.note || text.today.freshlyRanked}</p>
                       </div>
                     </button>
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title="No reviews yet"
-                  body="Your first review will unlock the recent activity strip here."
-                />
+                <EmptyState title={text.today.noReviewsTitle} body={text.today.noReviewsBody} />
               )}
             </div>
           </div>
         </article>
 
-        <article id="review" className="board-card board-card-wide">
-          <div className="card-kicker">Review</div>
+        <article id="review" className="board-card board-card-wide board-card-refined">
+          <div className="card-kicker">{text.review.kicker}</div>
           <div className="section-heading">
             <div>
-              <h2>5 minute review studio</h2>
-              <p>
-                Browse the static miniapp set, choose today&apos;s candidate, and
-                save one private rating for this day.
-              </p>
+              <h2>{text.review.title}</h2>
+              <p>{text.review.body}</p>
             </div>
-            {saveMessage ? <p className="status-inline">{saveMessage}</p> : null}
+            {reviewStatus ? <p className="status-inline">{reviewStatus}</p> : null}
           </div>
           <div className="review-grid">
             <div className="catalog-grid">
@@ -313,6 +339,7 @@ export function AppLadderShell({
                   key={app.id}
                   className={clsx(
                     "catalog-card",
+                    "catalog-card-refined",
                     selectedAppId === app.id && "catalog-card-active",
                   )}
                   onClick={() => setSelectedAppId(app.id)}
@@ -327,28 +354,29 @@ export function AppLadderShell({
               ))}
             </div>
 
-            <div className="review-panel">
-              <div className="selected-app-card">
+            <div className="review-panel review-panel-refined">
+              <div className="selected-app-card selected-app-card-refined">
                 <AppSticker app={selectedApp} />
                 <div>
-                  <p className="mini-profile-label">Selected miniapp</p>
+                  <p className="mini-profile-label">{text.review.selected}</p>
                   <h3>{selectedApp.name}</h3>
                   <p>{selectedApp.shortDescription}</p>
                   <a href={selectedApp.externalUrl} rel="noreferrer" target="_blank">
-                    Open external link
+                    {text.review.external}
                   </a>
                 </div>
               </div>
 
               <div className="field-stack">
                 <div>
-                  <label className="field-label">Tier</label>
+                  <label className="field-label">{text.review.tier}</label>
                   <div className="tier-row">
                     {tiers.map((tier) => (
                       <button
                         key={tier}
                         className={clsx(
                           "tier-option",
+                          "tier-option-refined",
                           draft.tier === tier && "tier-option-active",
                         )}
                         onClick={() =>
@@ -367,8 +395,8 @@ export function AppLadderShell({
 
                 <div className="metrics-grid">
                   {Object.entries(metricLabels).map(([metricKey, label]) => (
-                    <label key={metricKey} className="slider-card">
-                      <span className="field-label">{label}</span>
+                    <label key={metricKey} className="slider-card slider-card-refined">
+                      <span className="field-label">{text.review[label as MetricKey]}</span>
                       <div className="slider-row">
                         <input
                           max={5}
@@ -392,7 +420,7 @@ export function AppLadderShell({
                 </div>
 
                 <label className="note-field">
-                  <span className="field-label">Short note</span>
+                  <span className="field-label">{text.review.shortNote}</span>
                   <textarea
                     maxLength={160}
                     onChange={(event) =>
@@ -401,56 +429,59 @@ export function AppLadderShell({
                         note: event.target.value,
                       }))
                     }
-                    placeholder="What made this one stick with you today?"
+                    placeholder={text.review.placeholder}
                     rows={4}
                     value={draft.note}
                   />
                 </label>
 
-                <button className="button-primary full-width-button" onClick={saveReview} type="button">
-                  Save today&apos;s review
+                <button
+                  className="button-primary full-width-button"
+                  onClick={handleSaveReview}
+                  type="button"
+                >
+                  {text.review.save}
                 </button>
               </div>
             </div>
           </div>
         </article>
 
-        <article id="ladder" className="board-card board-card-wide">
-          <div className="card-kicker">Ladder</div>
+        <article id="ladder" className="board-card board-card-wide board-card-refined">
+          <div className="card-kicker">{text.ladder.kicker}</div>
           <div className="section-heading">
             <div>
-              <h2>Private tier board</h2>
-              <p>
-                Filter by category, switch the order, and keep the latest review
-                per miniapp as the board truth.
-              </p>
+              <h2>{text.ladder.title}</h2>
+              <p>{text.ladder.body}</p>
             </div>
           </div>
-          <div className="controls-row">
+          <div className="controls-row controls-row-refined">
             <div className="control-group">
               {categoryFilters.map((category) => (
                 <button
                   key={category}
                   className={clsx(
                     "control-pill",
+                    "control-pill-refined",
                     selectedCategory === category && "control-pill-active",
                   )}
                   onClick={() => setSelectedCategory(category)}
                   type="button"
                 >
-                  {category}
+                  {getCategoryLabel(category)}
                 </button>
               ))}
             </div>
             <div className="control-group">
               {[
-                { id: "newest", label: "Newest first" },
-                { id: "oldest", label: "Oldest first" },
+                { id: "newest", label: text.ladder.newest },
+                { id: "oldest", label: text.ladder.oldest },
               ].map((option) => (
                 <button
                   key={option.id}
                   className={clsx(
                     "control-pill",
+                    "control-pill-refined",
                     sortOrder === option.id && "control-pill-active",
                   )}
                   onClick={() => setSortOrder(option.id as typeof sortOrder)}
@@ -461,27 +492,27 @@ export function AppLadderShell({
               ))}
             </div>
           </div>
-          <div className="tier-board-grid">
+          <div className="tier-board-grid tier-board-grid-refined">
             {filteredBoard.map((column) => (
-              <div key={column.tier} className="tier-column">
+              <div key={column.tier} className="tier-column tier-column-refined">
                 <div className="tier-column-head">
                   <span>{column.tier}</span>
                   <small>{column.entries.length}</small>
                 </div>
                 {column.entries.length ? (
                   column.entries.map((entry) => (
-                    <div key={entry.review.id} className="tier-entry">
+                    <div key={entry.review.id} className="tier-entry tier-entry-refined">
                       <AppSticker app={entry.app} compact />
                       <div>
                         <strong>{`${entry.review.tier} tier | ${entry.app.name}`}</strong>
-                        <p>{entry.review.note || "Boarded without a note."}</p>
+                        <p>{entry.review.note || text.ladder.noNote}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <EmptyState
-                    title={`No ${column.tier} tier yet`}
-                    body="A saved review will drop a sticker here."
+                    title={text.ladder.emptyTitle(column.tier)}
+                    body={text.ladder.emptyBody}
                     compact
                   />
                 )}
@@ -490,15 +521,12 @@ export function AppLadderShell({
           </div>
         </article>
 
-        <article id="share" className="board-card board-card-wide">
-          <div className="card-kicker">Share</div>
+        <article id="share" className="board-card board-card-wide board-card-refined">
+          <div className="card-kicker">{text.share.kicker}</div>
           <div className="section-heading">
             <div>
-              <h2>Share card studio</h2>
-              <p>
-                Preview a tall card, export a PNG, and copy a short cast line
-                without leaving the app.
-              </p>
+              <h2>{text.share.title}</h2>
+              <p>{text.share.body}</p>
             </div>
             {shareStatus ? <p className="status-inline">{shareStatus}</p> : null}
           </div>
@@ -510,101 +538,97 @@ export function AppLadderShell({
                     key={template.id}
                     className={clsx(
                       "share-template-pill",
+                      "share-template-pill-refined",
                       shareTemplate === template.id && "share-template-pill-active",
                     )}
                     onClick={() => setShareTemplate(template.id)}
                     type="button"
                   >
-                    {template.label}
+                    {text.share[template.key]}
                   </button>
                 ))}
               </div>
-              <div className="share-copy-box">
+              <div className="share-copy-box share-copy-box-refined">
                 <p>{shareCopy}</p>
               </div>
               <div className="share-action-row">
                 <button className="button-primary" onClick={handleDownloadShareCard} type="button">
-                  Save PNG
+                  {text.share.savePng}
                 </button>
                 <button className="button-secondary" onClick={handleCopyShare} type="button">
-                  Copy cast text
+                  {text.share.copy}
                 </button>
               </div>
             </div>
 
-            <div ref={shareCardRef} className="share-card-preview">
+            <div ref={shareCardRef} className="share-card-preview share-card-preview-refined">
               <div className="share-card-meta">
-                <span>APP LADDER</span>
+                <span>{appConfig.name}</span>
                 <span>{dayKey}</span>
               </div>
               <div className="share-card-headline">
-                <strong>{shareOptions.find((option) => option.id === shareTemplate)?.label}</strong>
-                <h3>Private Base miniapp tier list</h3>
+                <strong>{text.share[shareOptions.find((option) => option.id === shareTemplate)!.key]}</strong>
+                <h3>{text.share.cardTitle}</h3>
                 <p>
                   {flattenedEntries.length
-                    ? `${flattenedEntries.length} apps ranked with a ${streak}-day streak.`
-                    : "Start reviewing to generate your first board card."}
+                    ? text.share.cardCount(flattenedEntries.length, streak)
+                    : text.share.cardEmpty}
                 </p>
               </div>
               <div className="weekly-stack">
                 {flattenedEntries.length ? (
                   flattenedEntries.slice(0, 4).map((entry) => (
-                    <div key={entry.review.id} className="weekly-item">
+                    <div key={entry.review.id} className="weekly-item weekly-item-refined">
                       <AppSticker app={entry.app} compact />
                       <div>
                         <strong>{`${entry.review.tier} tier | ${entry.app.name}`}</strong>
-                        <p>{entry.review.note || "Pinned without a note."}</p>
+                        <p>{entry.review.note || text.share.noNote}</p>
                       </div>
                     </div>
                   ))
                 ) : (
                   <EmptyState
-                    title="Nothing ranked yet"
-                    body="The share card will fill itself from your saved reviews."
+                    title={text.share.nothingTitle}
+                    body={text.share.nothingBody}
                   />
                 )}
               </div>
               <div className="share-card-footer">
-                <span>base + farcaster + browser</span>
-                <span>solo collection mode</span>
+                <span>{text.share.footerLeft}</span>
+                <span>{text.share.footerRight}</span>
               </div>
             </div>
           </div>
         </article>
 
-        <article className="board-card">
-          <div className="card-kicker">Weekly</div>
-          <h2>S tier roundup</h2>
-          <p>Last 7 days of S-tier hits, ready for a share card and cast caption.</p>
+        <article className="board-card board-card-refined">
+          <div className="card-kicker">{text.weekly.kicker}</div>
+          <h2>{text.weekly.title}</h2>
+          <p>{text.weekly.body}</p>
           {weeklySTier.length ? (
             <div className="weekly-stack">
               {weeklySTier.map(({ app, review }) => (
-                <div key={review.id} className="weekly-item">
+                <div key={review.id} className="weekly-item weekly-item-refined">
                   <AppSticker app={app} compact />
                   <div>
                     <strong>{app.name}</strong>
-                    <p>{review.note || "No note attached yet."}</p>
+                    <p>{review.note || text.weekly.noNote}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <EmptyState
-              title="No S tier this week"
-              body="Once something really lands, it will surface here for sharing."
-            />
+            <EmptyState title={text.weekly.emptyTitle} body={text.weekly.emptyBody} />
           )}
         </article>
       </section>
 
-      <footer className="footer-note">
+      <footer className="footer-note footer-note-refined">
         <p>
-          {isLoaded
-            ? "Catalog, local-first reviews, filters, share copy, PNG export, and generated miniapp assets are live."
-            : "Loading local board data..."}
+          {isLoaded ? text.footerLoaded : text.footerLoading}
         </p>
         <Link href="/.well-known/farcaster.json" target="_blank">
-          Inspect manifest
+          {text.inspectManifest}
         </Link>
       </footer>
     </main>

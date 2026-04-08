@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   buildDefaultDraft,
   buildDraftFromReview,
-  buildShareCopy,
   buildTierBoard,
   findMiniApp,
   getCategoryFilters,
@@ -94,7 +93,6 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
   const board = buildTierBoard(loadState.reviews);
   const weeklySTier = getWeekSTier(loadState.reviews, dayKey);
   const streak = getReviewStreak(loadState.reviews, dayKey);
-  const shareCopy = buildShareCopy(shareTemplate, loadState.reviews);
   const categoryFilters = getCategoryFilters();
 
   useEffect(() => {
@@ -133,7 +131,8 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
       ...current,
       reviews: upsertReview(current.reviews, review),
     }));
-    setSaveMessage(`${selectedApp.name} was pinned to your board for ${dayKey}.`);
+    setSaveMessage(now);
+    return review;
   }
 
   function dismissLoadError() {
@@ -148,13 +147,13 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     draft,
     loadError: loadState.loadError,
     recentEntries,
+    reviews: loadState.reviews,
     reviewCount: loadState.reviews.length,
     saveMessage,
     selectedApp,
     selectedAppId,
     setDraft,
     setSelectedAppId,
-    shareCopy,
     shareTemplate,
     setShareTemplate,
     saveReview,

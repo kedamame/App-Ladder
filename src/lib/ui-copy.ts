@@ -54,7 +54,7 @@ export const uiCopy = {
     review: {
       kicker: "Review",
       title: "Register your miniapps, then review them",
-      body: "Save the image URL, public link, and name for each miniapp you want to track, then use the same review flow for all of them.",
+      body: "Save the miniapp link, image URL, and name for each miniapp you want to track, then use the same review flow for all of them.",
       searchLabel: "Search your miniapps",
       searchPlaceholder: "Search by name, category, or description",
       catalogCount: (visible: number, total: number) =>
@@ -67,10 +67,10 @@ export const uiCopy = {
       external: "Open external link",
       addAnyTitle: "Register a miniapp",
       addAnyBody:
-        "Save the image URL, public link, and name for any miniapp you want to review. Category and note are optional helpers.",
+        "Save the miniapp link, image URL, and name for any miniapp you want to review. Category and note are optional helpers.",
       imageLabel: "Image URL",
       imagePlaceholder: "https://.../cover.png",
-      urlLabel: "Public link",
+      urlLabel: "Miniapp link",
       urlPlaceholder: "https://...",
       autofill: "Autofill from URL",
       autofillLoading: "Autofilling...",
@@ -196,7 +196,7 @@ export const uiCopy = {
     review: {
       kicker: "レビュー",
       title: "miniapp を登録してからレビューする",
-      body: "レビューしたい miniapp の画像 URL、公開リンク、名前を保存し、そのまま同じレビュー導線で評価できます。",
+      body: "レビューしたい miniapp のリンク、画像 URL、名前を保存し、そのまま同じレビュー導線で評価できます。",
       searchLabel: "登録した miniapp を探す",
       searchPlaceholder: "名前、カテゴリ、説明で検索",
       catalogCount: (visible: number, total: number) => `${visible}件表示中 / 保存済み ${total}件`,
@@ -208,10 +208,10 @@ export const uiCopy = {
       external: "外部リンクを開く",
       addAnyTitle: "miniapp を登録",
       addAnyBody:
-        "レビューしたい miniapp の画像 URL、公開リンク、名前を保存します。カテゴリと説明は補助情報として任意入力です。",
+        "レビューしたい miniapp のリンク、画像 URL、名前を保存します。カテゴリと説明は補助情報として任意入力です。",
       imageLabel: "画像 URL",
       imagePlaceholder: "https://.../cover.png",
-      urlLabel: "公開リンク",
+      urlLabel: "miniapp のリンク",
       urlPlaceholder: "https://...",
       autofill: "URL から自動入力",
       autofillLoading: "自動入力中...",

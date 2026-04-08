@@ -121,9 +121,9 @@ export const uiCopy = {
     share: {
       kicker: "Share",
       title: "A simpler share card studio",
-      body: "Preview a tall card, export a PNG, and copy a short cast line without leaving the app.",
+      body: "Preview a tall card, export a PNG, and copy a short cast line without leaving the app. Top 3 shares can bundle up to three miniapps at once.",
       shareSTier: "This week's S tier",
-      shareTop3: "Top 3",
+      shareTop3: "Top 3 (up to 3)",
       shareHiddenGem: "Hidden gem",
       savePng: "Save PNG",
       copy: "Copy cast text",
@@ -262,9 +262,9 @@ export const uiCopy = {
     share: {
       kicker: "共有",
       title: "共有カードスタジオ",
-      body: "縦長カードをプレビューし、PNG を保存して、Cast 用の短文もその場でコピーできます。",
+      body: "縦長カードをプレビューし、PNG を保存して、Cast 用の短文もその場でコピーできます。Top 3 は miniapp を3つまでまとめて共有できます。",
       shareSTier: "今週の S tier",
-      shareTop3: "Top 3",
+      shareTop3: "Top 3（最大3つ）",
       shareHiddenGem: "隠れ推し",
       savePng: "PNG 保存",
       copy: "Cast 文をコピー",

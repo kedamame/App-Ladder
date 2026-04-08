@@ -579,15 +579,6 @@ export function AppLadderShell({
                       value={customAppDraft.externalUrl}
                     />
                   </label>
-                  <label className="input-field input-field-full">
-                    <span className="field-label">{text.review.imageLabel}</span>
-                    <input
-                      onChange={(event) => handleCustomAppField("imageUrl", event.target.value)}
-                      placeholder={text.review.imagePlaceholder}
-                      type="url"
-                      value={customAppDraft.imageUrl}
-                    />
-                  </label>
                   <div className="autofill-row input-field-full">
                     <button
                       className="button-secondary"
@@ -598,6 +589,15 @@ export function AppLadderShell({
                       {isAutofilling ? text.review.autofillLoading : text.review.autofill}
                     </button>
                   </div>
+                  <label className="input-field input-field-full">
+                    <span className="field-label">{text.review.imageLabel}</span>
+                    <input
+                      onChange={(event) => handleCustomAppField("imageUrl", event.target.value)}
+                      placeholder={text.review.imagePlaceholder}
+                      type="url"
+                      value={customAppDraft.imageUrl}
+                    />
+                  </label>
                   <label className="input-field">
                     <span className="field-label">{text.review.nameLabel}</span>
                     <input

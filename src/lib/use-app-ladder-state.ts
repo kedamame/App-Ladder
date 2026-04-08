@@ -10,6 +10,7 @@ import {
   findMiniApp,
   findMiniAppByUrl,
   getCategoryFilters,
+  getReviewForAppOnDay,
   getRecentEntries,
   getReviewStreak,
   getTodayReview,
@@ -125,6 +126,11 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
   const todayPick = useMemo(() => pickAppForDay(apps, dayKey), [apps, dayKey]);
   const selectedApp = findMiniApp(apps, selectedAppId) ?? todayPick ?? null;
   const todayReview = getTodayReview(loadState.reviews, dayKey);
+  const selectedAppTodayReview = getReviewForAppOnDay(
+    loadState.reviews,
+    dayKey,
+    selectedApp?.id,
+  );
   const recentEntries = getRecentEntries(apps, loadState.reviews);
   const board = buildTierBoard(apps, loadState.reviews);
   const weeklySTier = getWeekSTier(apps, loadState.reviews, dayKey);
@@ -149,15 +155,14 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
       return;
     }
 
-    const seedReview =
-      todayReview?.appId === selectedApp?.id
-        ? todayReview
-        : selectedApp
-          ? loadState.reviews.find((review) => review.appId === selectedApp.id) ?? null
-          : null;
+    const seedReview = selectedAppTodayReview
+      ? selectedAppTodayReview
+      : selectedApp
+        ? loadState.reviews.find((review) => review.appId === selectedApp.id) ?? null
+        : null;
 
     setDraft(buildDraftFromReview(seedReview));
-  }, [dayKey, loadState.isLoaded, loadState.reviews, selectedApp, todayReview]);
+  }, [dayKey, loadState.isLoaded, loadState.reviews, selectedApp, selectedAppTodayReview]);
 
   function addCustomApp(input: CustomMiniAppInput): AddCustomMiniAppResult {
     const normalizedUrl = normalizeMiniAppUrl(input.externalUrl);
@@ -233,13 +238,13 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
 
     const now = new Date().toISOString();
     const review: StoredReview = {
-      id: todayReview?.id ?? `${dayKey}:${selectedApp.id}`,
+      id: selectedAppTodayReview?.id ?? `${dayKey}:${selectedApp.id}`,
       appId: selectedApp.id,
       tier: draft.tier,
       note: draft.note.trim(),
       scores: draft.scores,
       dayKey,
-      reviewedAt: todayReview?.reviewedAt ?? now,
+      reviewedAt: selectedAppTodayReview?.reviewedAt ?? now,
       updatedAt: now,
     };
 

@@ -221,8 +221,11 @@ export function pickAppForDay(apps: MiniApp[], dayKey: string) {
 }
 
 export function upsertReview(reviews: StoredReview[], nextReview: StoredReview) {
-  const withoutDay = reviews.filter((review) => review.dayKey !== nextReview.dayKey);
-  return [nextReview, ...withoutDay].sort((left, right) =>
+  const withoutMatchingReview = reviews.filter(
+    (review) =>
+      !(review.dayKey === nextReview.dayKey && review.appId === nextReview.appId),
+  );
+  return [nextReview, ...withoutMatchingReview].sort((left, right) =>
     right.updatedAt.localeCompare(left.updatedAt),
   );
 }
@@ -247,7 +250,27 @@ export function upsertCustomMiniApp(apps: MiniApp[], nextApp: MiniApp) {
 }
 
 export function getTodayReview(reviews: StoredReview[], dayKey: string) {
-  return reviews.find((review) => review.dayKey === dayKey) ?? null;
+  return (
+    [...reviews]
+      .filter((review) => review.dayKey === dayKey)
+      .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0] ?? null
+  );
+}
+
+export function getReviewForAppOnDay(
+  reviews: StoredReview[],
+  dayKey: string,
+  appId?: string,
+) {
+  if (!appId) {
+    return null;
+  }
+
+  return (
+    [...reviews]
+      .filter((review) => review.dayKey === dayKey && review.appId === appId)
+      .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0] ?? null
+  );
 }
 
 export function getLatestReviewsByApp(reviews: StoredReview[]) {

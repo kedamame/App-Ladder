@@ -19,7 +19,6 @@ const stickerPalettes = [
 
 export type Tier = (typeof tiers)[number];
 export type MetricKey = (typeof metricKeys)[number];
-export type MiniAppSource = "curated" | "custom";
 
 export type MiniApp = {
   id: string;
@@ -29,8 +28,8 @@ export type MiniApp = {
   badge: string;
   accent: string;
   wash: string;
+  imageUrl: string;
   externalUrl: string;
-  source: MiniAppSource;
   addedAt?: string;
 };
 
@@ -66,163 +65,9 @@ export type CustomMiniAppInput = {
   name: string;
   category: string;
   shortDescription: string;
+  imageUrl: string;
   externalUrl: string;
 };
-
-export const miniApps: MiniApp[] = [
-  {
-    id: "gmfren",
-    name: "gmfren",
-    category: "Social",
-    shortDescription:
-      "The gm client of Farcaster. View gms, leaderboards, and gm like a pro.",
-    badge: "GM",
-    accent: "#ff7b54",
-    wash: "#ffe0d2",
-    externalUrl:
-      "https://farcaster.xyz/miniapps/01961ce5-a9c7-4f5d-8902-a81838ab99a2/gmfren",
-    source: "curated",
-  },
-  {
-    id: "gm-gn",
-    name: "GM - GN",
-    category: "Social",
-    shortDescription:
-      "Cast a GM or GN to your frens on Warpcast and keep your streak alive.",
-    badge: "GG",
-    accent: "#0057ff",
-    wash: "#dbe7ff",
-    externalUrl: "https://warpcast.com/~/frames/launch?domain=cast.basefrens.io",
-    source: "curated",
-  },
-  {
-    id: "adivina-drone",
-    name: "adivinaDrone",
-    category: "Games",
-    shortDescription:
-      "Guess where drone photos were taken in this interactive geography game.",
-    badge: "AD",
-    accent: "#8d5cff",
-    wash: "#e7ddff",
-    externalUrl: "https://warpcast.com/~/frames/launch?domain=adivinadrone.c13studio.mx",
-    source: "curated",
-  },
-  {
-    id: "base-pool",
-    name: "Base Pool",
-    category: "Games",
-    shortDescription:
-      "A provably fair lottery game on Base where you join draws with small onchain entries.",
-    badge: "BP",
-    accent: "#28b57a",
-    wash: "#dff8ec",
-    externalUrl:
-      "https://warpcast.com/miniapps/01960e31-a5f7-2f26-3b46-41b033185e67/base-pool",
-    source: "curated",
-  },
-  {
-    id: "liv-more",
-    name: "Liv More",
-    category: "Health",
-    shortDescription:
-      "Gamifying wellness with wearables, blockchain attestations, and social challenges.",
-    badge: "LM",
-    accent: "#ffb000",
-    wash: "#fff0c6",
-    externalUrl:
-      "https://farcaster.xyz/miniapps/019591c5-5e7b-503c-a658-a75e0f4438b3/liv-more",
-    source: "curated",
-  },
-  {
-    id: "base-build",
-    name: "Base Build",
-    category: "Utility",
-    shortDescription: "Grow your app and earn on Base with distribution and builder tooling.",
-    badge: "BB",
-    accent: "#00a6a6",
-    wash: "#d5f8f8",
-    externalUrl:
-      "https://farcaster.xyz/miniapps/01981558-11d7-a2e4-bb3c-4552d5dfbad9/base-build",
-    source: "curated",
-  },
-  {
-    id: "verify",
-    name: "Verify",
-    category: "Utility",
-    shortDescription:
-      "Help apps on Base verify real people and connect with the right audience faster.",
-    badge: "VF",
-    accent: "#16213d",
-    wash: "#dfe7f5",
-    externalUrl: "https://verify.base.dev",
-    source: "curated",
-  },
-  {
-    id: "mysphere",
-    name: "MySphere.fun",
-    category: "Social",
-    shortDescription:
-      "The onchain social app on Base where users build, grow, and own their digital sphere.",
-    badge: "MS",
-    accent: "#ff5ca8",
-    wash: "#ffe0ef",
-    externalUrl:
-      "https://farcaster.xyz/miniapps/01961d73-cf12-2881-842d-4487d8af19d8/mysphere",
-    source: "curated",
-  },
-  {
-    id: "firefly-social",
-    name: "Firefly Social",
-    category: "Social",
-    shortDescription:
-      "Post, flex, and earn in a Web3 social app built for cross-network activity.",
-    badge: "FS",
-    accent: "#3f8cff",
-    wash: "#ddeaff",
-    externalUrl:
-      "https://warpcast.com/miniapps/019909b9-355e-a6e9-8f4a-a3bcfbe5fc2b/firefly-social-dev",
-    source: "curated",
-  },
-  {
-    id: "run-on-base",
-    name: "Run on Base",
-    category: "Games",
-    shortDescription:
-      "A running-style mini game on Farcaster with rewards, streaks, and leaderboards.",
-    badge: "RB",
-    accent: "#5d44d7",
-    wash: "#e8e1ff",
-    externalUrl:
-      "https://warpcast.com/miniapps/0196b705-3686-09c2-2464-4b729caf061e/run-on-base",
-    source: "curated",
-  },
-  {
-    id: "mibboverse",
-    name: "Mibboverse",
-    category: "Games",
-    shortDescription:
-      "An onchain adventure on Base with seasonal quests, artifacts, and Genesis NFTs.",
-    badge: "MV",
-    accent: "#ff8a3d",
-    wash: "#ffe8d7",
-    externalUrl:
-      "https://farcaster.xyz/miniapps/0198ed48-5f9e-8ae0-3d66-95e160398f47/mibboverse",
-    source: "curated",
-  },
-  {
-    id: "mesh-mini",
-    name: "Mesh Mini",
-    category: "Social",
-    shortDescription:
-      "Onchain events and social coordination built for Farcaster groups and communities.",
-    badge: "MM",
-    accent: "#0f9d58",
-    wash: "#dcf5e6",
-    externalUrl:
-      "https://warpcast.com/miniapps/01977f79-5a92-9df1-264b-5d057564a463/mesh-mini",
-    source: "curated",
-  },
-];
 
 export function todayKey(date = new Date()) {
   return date.toISOString().slice(0, 10);
@@ -311,13 +156,14 @@ function pickStickerPalette(seed: string) {
 export function createCustomMiniApp(input: CustomMiniAppInput): MiniApp {
   const normalizedName = input.name.trim();
   const normalizedUrl = normalizeMiniAppUrl(input.externalUrl);
-  const category = input.category.trim() || "Custom";
+  const normalizedImageUrl = normalizeMiniAppUrl(input.imageUrl);
+  const category = input.category.trim() || "Unsorted";
   const shortDescription =
     input.shortDescription.trim() ||
-    "Added from a public miniapp link so it can be reviewed on your private board.";
+    "Saved from your own miniapp shelf so it can be reviewed on your private board.";
 
-  if (!normalizedName || !normalizedUrl) {
-    throw new Error("Custom miniapp requires a name and a valid URL.");
+  if (!normalizedName || !normalizedUrl || !normalizedImageUrl) {
+    throw new Error("Custom miniapp requires a name, image URL, and public URL.");
   }
 
   const palette = pickStickerPalette(`${normalizedName}:${normalizedUrl}`);
@@ -331,8 +177,8 @@ export function createCustomMiniApp(input: CustomMiniAppInput): MiniApp {
     badge: buildBadge(normalizedName),
     accent: palette.accent,
     wash: palette.wash,
+    imageUrl: normalizedImageUrl,
     externalUrl: normalizedUrl,
-    source: "custom",
     addedAt: new Date().toISOString(),
   };
 }
@@ -344,7 +190,7 @@ export function orderMiniApps(customApps: MiniApp[]) {
 }
 
 export function buildAppCollection(customApps: MiniApp[]) {
-  return [...orderMiniApps(customApps), ...miniApps];
+  return orderMiniApps(customApps);
 }
 
 export function findMiniApp(apps: MiniApp[], appId?: string) {
@@ -362,13 +208,16 @@ export function findMiniAppByUrl(apps: MiniApp[], externalUrl: string) {
 }
 
 export function pickAppForDay(apps: MiniApp[], dayKey: string) {
-  const safeApps = apps.length ? apps : miniApps;
+  if (!apps.length) {
+    return null;
+  }
+
   const hash = Array.from(dayKey).reduce(
     (total, character, index) => total + character.charCodeAt(0) * (index + 3),
     0,
   );
 
-  return safeApps[hash % safeApps.length];
+  return apps[hash % apps.length];
 }
 
 export function upsertReview(reviews: StoredReview[], nextReview: StoredReview) {
@@ -391,7 +240,6 @@ export function upsertCustomMiniApp(apps: MiniApp[], nextApp: MiniApp) {
     ...existing,
     ...nextApp,
     id: existing.id,
-    source: "custom",
     addedAt: existing.addedAt ?? nextApp.addedAt,
   };
 
@@ -467,7 +315,8 @@ export function getRecentEntries(apps: MiniApp[], reviews: StoredReview[], limit
 }
 
 export function getCategoryFilters(apps: MiniApp[]) {
-  return ["All", ...Array.from(new Set(apps.map((app) => app.category)))];
+  const categories = Array.from(new Set(apps.map((app) => app.category)));
+  return ["All", ...categories];
 }
 
 export function getReviewStreak(reviews: StoredReview[], anchor = todayKey()) {

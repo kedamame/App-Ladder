@@ -262,6 +262,13 @@ img {
   transform: translateY(-1px);
 }
 
+.button-primary:disabled,
+.button-secondary:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .hero-panel {
   display: flex;
   flex-direction: column;
@@ -604,6 +611,13 @@ img {
   transform: translateY(-1px);
 }
 
+.catalog-card strong,
+.catalog-card p,
+.tier-entry strong,
+.weekly-item strong {
+  word-break: break-word;
+}
+
 .catalog-card-active {
   border-color: rgba(31, 78, 216, 0.22);
   background: rgba(219, 229, 255, 0.54);
@@ -872,6 +886,8 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  position: relative;
   flex-shrink: 0;
   width: 88px;
   height: 88px;
@@ -882,6 +898,12 @@ img {
     linear-gradient(135deg, var(--sticker-accent), white);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
   transform: rotate(-2deg);
+}
+
+.app-sticker-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .app-sticker span {

@@ -14,7 +14,6 @@ import {
   getReviewStreak,
   getTodayReview,
   getWeekSTier,
-  miniApps,
   normalizeDayKey,
   normalizeMiniAppUrl,
   pickAppForDay,
@@ -60,7 +59,7 @@ function parseStoredState(rawValue: string | null): PersistedState {
 
 export function useAppLadderState(initialAppId?: string, initialDay?: string) {
   const dayKey = normalizeDayKey(initialDay);
-  const [selectedAppId, setSelectedAppId] = useState(initialAppId ?? miniApps[0].id);
+  const [selectedAppId, setSelectedAppId] = useState(initialAppId ?? "");
   const [draft, setDraft] = useState<ReviewDraft>(buildDefaultDraft);
   const [loadState, setLoadState] = useState<LoadState>({
     isLoaded: false,
@@ -107,7 +106,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
 
   const apps = useMemo(() => buildAppCollection(loadState.customApps), [loadState.customApps]);
   const todayPick = useMemo(() => pickAppForDay(apps, dayKey), [apps, dayKey]);
-  const selectedApp = findMiniApp(apps, selectedAppId) ?? todayPick;
+  const selectedApp = findMiniApp(apps, selectedAppId) ?? todayPick ?? null;
   const todayReview = getTodayReview(loadState.reviews, dayKey);
   const recentEntries = getRecentEntries(apps, loadState.reviews);
   const board = buildTierBoard(apps, loadState.reviews);
@@ -116,10 +115,17 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
   const categoryFilters = getCategoryFilters(apps);
 
   useEffect(() => {
-    if (!findMiniApp(apps, selectedAppId)) {
-      setSelectedAppId(initialAppId ?? todayPick.id);
+    if (!apps.length) {
+      if (selectedAppId) {
+        setSelectedAppId("");
+      }
+      return;
     }
-  }, [apps, initialAppId, selectedAppId, todayPick.id]);
+
+    if (!findMiniApp(apps, selectedAppId)) {
+      setSelectedAppId(initialAppId && findMiniApp(apps, initialAppId) ? initialAppId : apps[0].id);
+    }
+  }, [apps, initialAppId, selectedAppId]);
 
   useEffect(() => {
     if (!loadState.isLoaded) {
@@ -127,17 +133,20 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     }
 
     const seedReview =
-      todayReview?.appId === selectedApp.id
+      todayReview?.appId === selectedApp?.id
         ? todayReview
-        : loadState.reviews.find((review) => review.appId === selectedApp.id) ?? null;
+        : selectedApp
+          ? loadState.reviews.find((review) => review.appId === selectedApp.id) ?? null
+          : null;
 
     setDraft(buildDraftFromReview(seedReview));
-  }, [dayKey, loadState.isLoaded, loadState.reviews, selectedApp.id, todayReview]);
+  }, [dayKey, loadState.isLoaded, loadState.reviews, selectedApp, todayReview]);
 
   function addCustomApp(input: CustomMiniAppInput): AddCustomMiniAppResult {
     const normalizedUrl = normalizeMiniAppUrl(input.externalUrl);
+    const normalizedImageUrl = normalizeMiniAppUrl(input.imageUrl);
 
-    if (!input.name.trim() || !normalizedUrl) {
+    if (!input.name.trim() || !normalizedUrl || !normalizedImageUrl) {
       return { status: "invalid", app: null };
     }
 
@@ -151,6 +160,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     const nextApp = createCustomMiniApp({
       ...input,
       externalUrl: normalizedUrl,
+      imageUrl: normalizedImageUrl,
     });
 
     setLoadState((current) => ({
@@ -163,6 +173,10 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
   }
 
   function saveReview() {
+    if (!selectedApp) {
+      return null;
+    }
+
     const now = new Date().toISOString();
     const review: StoredReview = {
       id: todayReview?.id ?? `${dayKey}:${selectedApp.id}`,

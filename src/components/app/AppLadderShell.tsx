@@ -10,8 +10,8 @@ import {
   buildShareCopy,
   tiers,
   type AppLocale,
-  type MetricKey,
   type CustomMiniAppInput,
+  type MetricKey,
   type MiniApp,
 } from "@/lib/app-ladder";
 import { useFarcasterMiniApp } from "@/lib/farcaster";
@@ -35,6 +35,7 @@ const emptyCustomAppDraft: CustomMiniAppInput = {
   name: "",
   category: "",
   shortDescription: "",
+  imageUrl: "",
   externalUrl: "",
 };
 
@@ -48,7 +49,6 @@ export function AppLadderShell({
     apps,
     board,
     categoryFilters,
-    customAppCount,
     dayKey,
     draft,
     loadError,
@@ -149,17 +149,19 @@ export function AppLadderShell({
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    params.set("app", selectedApp.id);
     params.set("day", dayKey);
+
+    if (selectedApp?.id) {
+      params.set("app", selectedApp.id);
+    } else {
+      params.delete("app");
+    }
+
     window.history.replaceState({}, "", `?${params.toString()}`);
-  }, [dayKey, selectedApp.id]);
+  }, [dayKey, selectedApp?.id]);
 
   function getCategoryLabel(category: string) {
     return category === "All" ? text.ladder.all : category;
-  }
-
-  function getAppSourceLabel(app: MiniApp) {
-    return app.source === "custom" ? text.review.sourceCustom : text.review.sourceCurated;
   }
 
   async function handleCopyShare() {
@@ -193,6 +195,11 @@ export function AppLadderShell({
   }
 
   function handleSaveReview() {
+    if (!selectedApp) {
+      setReviewStatus(text.review.saveDisabled);
+      return;
+    }
+
     saveReview();
     setReviewStatus(text.review.saved(selectedApp.name, dayKey));
   }
@@ -260,12 +267,18 @@ export function AppLadderShell({
           <h1>{text.heroTitle}</h1>
           <p className="hero-text">{text.heroText}</p>
           <div className="today-spotlight today-spotlight-refined">
-            <AppSticker app={todayPick} />
-            <div>
-              <p className="mini-profile-label">{text.todayPick}</p>
-              <h2>{todayPick.name}</h2>
-              <p>{todayPick.shortDescription}</p>
-            </div>
+            {todayPick ? (
+              <>
+                <AppSticker app={todayPick} />
+                <div>
+                  <p className="mini-profile-label">{text.todayPick}</p>
+                  <h2>{todayPick.name}</h2>
+                  <p>{todayPick.shortDescription}</p>
+                </div>
+              </>
+            ) : (
+              <EmptyState title={text.today.emptyPickTitle} body={text.today.emptyPickBody} />
+            )}
           </div>
           <div className="hero-actions">
             <a className="button-primary" href="#review">
@@ -284,9 +297,7 @@ export function AppLadderShell({
           <div className="mini-profile">
             <p className="mini-profile-label">{text.currentSession}</p>
             <strong>{user?.displayName ?? user?.username ?? text.guest}</strong>
-            <span>
-              {user?.fid ? `FID ${user.fid}` : text.guestCopy}
-            </span>
+            <span>{user?.fid ? `FID ${user.fid}` : text.guestCopy}</span>
           </div>
           <div className="status-stack">
             <StatusPill
@@ -337,14 +348,20 @@ export function AppLadderShell({
           <div className="overview-grid">
             <div className="feature-tile feature-tile-refined">
               <p className="mini-profile-label">{text.today.target}</p>
-              <div className="tile-row">
-                <AppSticker app={todayPick} />
-                <div>
-                  <h3>{todayPick.name}</h3>
-                  <p>{todayPick.category}</p>
-                </div>
-              </div>
-              <p className="muted-copy">{todayPick.shortDescription}</p>
+              {todayPick ? (
+                <>
+                  <div className="tile-row">
+                    <AppSticker app={todayPick} />
+                    <div>
+                      <h3>{todayPick.name}</h3>
+                      <p>{todayPick.category}</p>
+                    </div>
+                  </div>
+                  <p className="muted-copy">{todayPick.shortDescription}</p>
+                </>
+              ) : (
+                <EmptyState title={text.today.emptyPickTitle} body={text.today.emptyPickBody} />
+              )}
             </div>
             <div className="feature-tile feature-tile-refined">
               <p className="mini-profile-label">{text.today.status}</p>
@@ -405,7 +422,7 @@ export function AppLadderShell({
                   />
                 </label>
                 <p className="catalog-meta">
-                  {text.review.catalogCount(visibleApps.length, apps.length, customAppCount)}
+                  {text.review.catalogCount(visibleApps.length, apps.length)}
                 </p>
               </div>
 
@@ -426,7 +443,6 @@ export function AppLadderShell({
                       <div className="catalog-card-copy">
                         <div className="catalog-card-head">
                           <strong>{app.name}</strong>
-                          <span className="catalog-chip">{getAppSourceLabel(app)}</span>
                         </div>
                         <p>{app.category}</p>
                       </div>
@@ -434,10 +450,7 @@ export function AppLadderShell({
                   ))}
                 </div>
               ) : (
-                <EmptyState
-                  title={text.review.noMatchesTitle}
-                  body={text.review.noMatchesBody}
-                />
+                <EmptyState title={text.review.noMatchesTitle} body={text.review.noMatchesBody} />
               )}
 
               <div className="custom-app-card custom-app-card-refined">
@@ -450,6 +463,15 @@ export function AppLadderShell({
                 </div>
                 {catalogStatus ? <p className="status-inline">{catalogStatus}</p> : null}
                 <div className="custom-form-grid">
+                  <label className="input-field input-field-full">
+                    <span className="field-label">{text.review.imageLabel}</span>
+                    <input
+                      onChange={(event) => handleCustomAppField("imageUrl", event.target.value)}
+                      placeholder={text.review.imagePlaceholder}
+                      type="url"
+                      value={customAppDraft.imageUrl}
+                    />
+                  </label>
                   <label className="input-field input-field-full">
                     <span className="field-label">{text.review.urlLabel}</span>
                     <input
@@ -502,18 +524,24 @@ export function AppLadderShell({
             </div>
 
             <div className="review-panel review-panel-refined">
-              <div className="selected-app-card selected-app-card-refined">
-                <AppSticker app={selectedApp} />
-                <div>
-                  <p className="mini-profile-label">{text.review.selected}</p>
-                  <span className="catalog-chip">{getAppSourceLabel(selectedApp)}</span>
-                  <h3>{selectedApp.name}</h3>
-                  <p>{selectedApp.shortDescription}</p>
-                  <a href={selectedApp.externalUrl} rel="noreferrer" target="_blank">
-                    {text.review.external}
-                  </a>
+              {selectedApp ? (
+                <div className="selected-app-card selected-app-card-refined">
+                  <AppSticker app={selectedApp} />
+                  <div>
+                    <p className="mini-profile-label">{text.review.selected}</p>
+                    <h3>{selectedApp.name}</h3>
+                    <p>{selectedApp.shortDescription}</p>
+                    <a href={selectedApp.externalUrl} rel="noreferrer" target="_blank">
+                      {text.review.external}
+                    </a>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <EmptyState
+                  title={text.review.selectedEmptyTitle}
+                  body={text.review.selectedEmptyBody}
+                />
+              )}
 
               <div className="field-stack">
                 <div>
@@ -585,10 +613,11 @@ export function AppLadderShell({
 
                 <button
                   className="button-primary full-width-button"
+                  disabled={!selectedApp}
                   onClick={handleSaveReview}
                   type="button"
                 >
-                  {text.review.save}
+                  {selectedApp ? text.review.save : text.review.saveDisabled}
                 </button>
               </div>
             </div>
@@ -735,10 +764,7 @@ export function AppLadderShell({
                     </div>
                   ))
                 ) : (
-                  <EmptyState
-                    title={text.share.nothingTitle}
-                    body={text.share.nothingBody}
-                  />
+                  <EmptyState title={text.share.nothingTitle} body={text.share.nothingBody} />
                 )}
               </div>
               <div className="share-card-footer">
@@ -772,9 +798,7 @@ export function AppLadderShell({
       </section>
 
       <footer className="footer-note footer-note-refined">
-        <p>
-          {isLoaded ? text.footerLoaded : text.footerLoading}
-        </p>
+        <p>{isLoaded ? text.footerLoaded : text.footerLoading}</p>
         <Link href="/.well-known/farcaster.json" target="_blank">
           {text.inspectManifest}
         </Link>
@@ -800,7 +824,8 @@ function AppSticker({
         } as CSSProperties
       }
     >
-      <span>{app.badge}</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img alt={app.name} className="app-sticker-image" src={app.imageUrl} />
     </div>
   );
 }

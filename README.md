@@ -51,8 +51,8 @@ Optional for later wallet expansion:
 
 ## MVP behavior
 
-- Curated starter catalog of real public miniapps
-- Users can add any public miniapp by URL and review it without a backend
+- No fixed starter catalog
+- Users register each miniapp themselves with an image URL, public URL, and name
 - One daily review slot keyed by `YYYY-MM-DD`
 - Inputs: tier, short note, fun, polish, come back
 - Latest review per miniapp powers the tier board
@@ -70,8 +70,7 @@ These are intentionally left as placeholders until deployment details are known:
 ## Production TODO
 
 - Replace placeholder app URL, app ID, and Farcaster manifest signature values
-- Refresh the curated starter catalog as public links change over time
-- Decide whether to add an external discovery source later, while keeping the no-backend fallback of manual URL entry
+- Decide whether to add optional auto-discovery later, while keeping the no-backend fallback of manual registration
 - Decide whether to re-enable wallet connectors once project IDs and target wallet UX are finalized
 - Register the deployed domain with Warpcast Manifest Tool
 - Verify Farcaster / Base App embeds against the final production domain
@@ -88,5 +87,5 @@ npm run build
 ## Notes
 
 - Core product flow works without login or wallet connection.
-- The starter catalog is intentionally static, and the app also supports user-added public miniapp links so people are not blocked by catalog freshness.
+- The app now starts from the user's own registered miniapps, so freshness does not depend on a bundled catalog.
 - If browser storage is blocked or corrupt, the app shows a recovery message and keeps the core UI usable.

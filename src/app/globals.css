@@ -657,6 +657,11 @@ img {
   font-weight: 600;
 }
 
+.tier-entry-head {
+  display: grid;
+  gap: 8px;
+}
+
 .field-stack {
   display: grid;
   gap: 18px;

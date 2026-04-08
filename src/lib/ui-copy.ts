@@ -109,6 +109,11 @@ export const uiCopy = {
       all: "All",
       newest: "Newest first",
       oldest: "Oldest first",
+      deleteAction: "Remove",
+      deleteConfirm: (name: string) =>
+        `Remove ${name} from the current board? The miniapp will stay on your shelf.`,
+      deleteDone: (name: string) => `${name} was removed from the current board.`,
+      deleteMissing: "That board entry is already gone.",
       emptyTitle: (tier: string) => `No ${tier} tier yet`,
       emptyBody: "A saved review will drop a sticker here.",
       noNote: "Boarded without a note.",
@@ -245,6 +250,11 @@ export const uiCopy = {
       all: "すべて",
       newest: "新しい順",
       oldest: "古い順",
+      deleteAction: "外す",
+      deleteConfirm: (name: string) =>
+        `${name} を今回の board から外しますか？ miniapp の登録自体は残ります。`,
+      deleteDone: (name: string) => `${name} を今回の board から外しました。`,
+      deleteMissing: "その board entry はすでにありません。",
       emptyTitle: (tier: string) => `${tier} tier はまだありません`,
       emptyBody: "レビューを保存すると、ここにステッカーが落ちます。",
       noNote: "メモなしで保存されました。",

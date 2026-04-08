@@ -50,8 +50,10 @@ export function AppLadderShell({
     board,
     categoryFilters,
     dayKey,
+    deleteBoardEntry,
     deleteCustomApp,
     draft,
+    hiddenBoardAppIds,
     loadError,
     recentEntries,
     reviews,
@@ -73,6 +75,7 @@ export function AppLadderShell({
   const [locale, setLocale] = useState<AppLocale>("en");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [ladderStatus, setLadderStatus] = useState("");
   const [reviewStatus, setReviewStatus] = useState("");
   const [catalogStatus, setCatalogStatus] = useState("");
   const [catalogQuery, setCatalogQuery] = useState("");
@@ -98,6 +101,7 @@ export function AppLadderShell({
       board.map((column) => ({
         ...column,
         entries: [...column.entries]
+          .filter((entry) => !hiddenBoardAppIds.includes(entry.app.id))
           .filter((entry) =>
             selectedCategory === "All" ? true : entry.app.category === selectedCategory,
           )
@@ -107,12 +111,19 @@ export function AppLadderShell({
               : left.review.updatedAt.localeCompare(right.review.updatedAt),
           ),
       })),
-    [board, selectedCategory, sortOrder],
+    [board, hiddenBoardAppIds, selectedCategory, sortOrder],
   );
 
-  const flattenedEntries = useMemo(
-    () => filteredBoard.flatMap((column) => column.entries),
-    [filteredBoard],
+  const shareEntries = useMemo(
+    () =>
+      board.flatMap((column) =>
+        [...column.entries].sort((left, right) =>
+          sortOrder === "newest"
+            ? right.review.updatedAt.localeCompare(left.review.updatedAt)
+            : left.review.updatedAt.localeCompare(right.review.updatedAt),
+        ),
+      ),
+    [board, sortOrder],
   );
 
   const visibleApps = useMemo(() => {
@@ -247,6 +258,25 @@ export function AppLadderShell({
     }
 
     setCatalogStatus(text.review.deleteDone(result.app.name));
+
+    if (selectedAppId === app.id) {
+      setReviewStatus("");
+    }
+  }
+
+  function handleDeleteBoardEntry(app: MiniApp) {
+    if (!window.confirm(text.ladder.deleteConfirm(app.name))) {
+      return;
+    }
+
+    const result = deleteBoardEntry(app.id);
+
+    if (result.status === "missing") {
+      setLadderStatus(text.ladder.deleteMissing);
+      return;
+    }
+
+    setLadderStatus(text.ladder.deleteDone(result.app.name));
 
     if (selectedAppId === app.id) {
       setReviewStatus("");
@@ -731,6 +761,7 @@ export function AppLadderShell({
               <h2>{text.ladder.title}</h2>
               <p>{text.ladder.body}</p>
             </div>
+            {ladderStatus ? <p className="status-inline">{ladderStatus}</p> : null}
           </div>
           <div className="controls-row controls-row-refined">
             <div className="control-group">
@@ -781,7 +812,16 @@ export function AppLadderShell({
                     <div key={entry.review.id} className="tier-entry tier-entry-refined">
                       <AppSticker app={entry.app} compact />
                       <div>
-                        <strong>{`${entry.review.tier} tier | ${entry.app.name}`}</strong>
+                        <div className="tier-entry-head">
+                          <strong>{`${entry.review.tier} tier | ${entry.app.name}`}</strong>
+                          <button
+                            className="icon-button-delete"
+                            onClick={() => handleDeleteBoardEntry(entry.app)}
+                            type="button"
+                          >
+                            {text.ladder.deleteAction}
+                          </button>
+                        </div>
                         <p>{entry.review.note || text.ladder.noNote}</p>
                       </div>
                     </div>
@@ -847,14 +887,14 @@ export function AppLadderShell({
                 <strong>{text.share[shareOptions.find((option) => option.id === shareTemplate)!.key]}</strong>
                 <h3>{text.share.cardTitle}</h3>
                 <p>
-                  {flattenedEntries.length
-                    ? text.share.cardCount(flattenedEntries.length, streak)
+                  {shareEntries.length
+                    ? text.share.cardCount(shareEntries.length, streak)
                     : text.share.cardEmpty}
                 </p>
               </div>
               <div className="weekly-stack">
-                {flattenedEntries.length ? (
-                  flattenedEntries.slice(0, 4).map((entry) => (
+                {shareEntries.length ? (
+                  shareEntries.slice(0, 4).map((entry) => (
                     <div key={entry.review.id} className="weekly-item weekly-item-refined">
                       <AppSticker app={entry.app} compact />
                       <div>

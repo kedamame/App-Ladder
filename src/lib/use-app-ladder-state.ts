@@ -31,6 +31,7 @@ const storageKey = "app-ladder-storage:v1";
 type PersistedState = {
   reviews: StoredReview[];
   customApps: MiniApp[];
+  hiddenBoardAppIds: string[];
 };
 
 type LoadState = {
@@ -38,6 +39,7 @@ type LoadState = {
   loadError: string | null;
   reviews: StoredReview[];
   customApps: MiniApp[];
+  hiddenBoardAppIds: string[];
 };
 
 type AddCustomMiniAppResult =
@@ -49,15 +51,22 @@ type DeleteCustomMiniAppResult =
   | { status: "missing"; app: null }
   | { status: "deleted"; app: MiniApp };
 
+type DeleteBoardEntryResult =
+  | { status: "missing"; app: null }
+  | { status: "deleted"; app: MiniApp };
+
 function parseStoredState(rawValue: string | null): PersistedState {
   if (!rawValue) {
-    return { reviews: [], customApps: [] };
+    return { reviews: [], customApps: [], hiddenBoardAppIds: [] };
   }
 
   const parsed = JSON.parse(rawValue) as Partial<PersistedState>;
   return {
     reviews: Array.isArray(parsed.reviews) ? parsed.reviews : [],
     customApps: Array.isArray(parsed.customApps) ? parsed.customApps : [],
+    hiddenBoardAppIds: Array.isArray(parsed.hiddenBoardAppIds)
+      ? parsed.hiddenBoardAppIds.filter((value): value is string => typeof value === "string")
+      : [],
   };
 }
 
@@ -70,6 +79,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     loadError: null,
     reviews: [],
     customApps: [],
+    hiddenBoardAppIds: [],
   });
   const [saveMessage, setSaveMessage] = useState("");
   const [shareTemplate, setShareTemplate] = useState<ShareTemplate>("s-tier");
@@ -82,6 +92,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
         loadError: null,
         reviews: stored.reviews,
         customApps: stored.customApps,
+        hiddenBoardAppIds: stored.hiddenBoardAppIds,
       });
     } catch {
       setLoadState({
@@ -90,6 +101,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
           "Local data could not be read. You can keep reviewing, but older entries might be unavailable until storage is reset.",
         reviews: [],
         customApps: [],
+        hiddenBoardAppIds: [],
       });
     }
   }, []);
@@ -104,9 +116,10 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
       JSON.stringify({
         reviews: loadState.reviews,
         customApps: loadState.customApps,
+        hiddenBoardAppIds: loadState.hiddenBoardAppIds,
       }),
     );
-  }, [loadState.customApps, loadState.isLoaded, loadState.reviews]);
+  }, [loadState.customApps, loadState.hiddenBoardAppIds, loadState.isLoaded, loadState.reviews]);
 
   const apps = useMemo(() => buildAppCollection(loadState.customApps), [loadState.customApps]);
   const todayPick = useMemo(() => pickAppForDay(apps, dayKey), [apps, dayKey]);
@@ -196,6 +209,23 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     return { status: "deleted", app: existingApp };
   }
 
+  function deleteBoardEntry(appId: string): DeleteBoardEntryResult {
+    const existingApp = findMiniApp(apps, appId);
+
+    if (!existingApp) {
+      return { status: "missing", app: null };
+    }
+
+    setLoadState((current) => ({
+      ...current,
+      hiddenBoardAppIds: current.hiddenBoardAppIds.includes(appId)
+        ? current.hiddenBoardAppIds
+        : [...current.hiddenBoardAppIds, appId],
+    }));
+
+    return { status: "deleted", app: existingApp };
+  }
+
   function saveReview() {
     if (!selectedApp) {
       return null;
@@ -215,6 +245,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
 
     setLoadState((current) => ({
       ...current,
+      hiddenBoardAppIds: current.hiddenBoardAppIds.filter((id) => id !== selectedApp.id),
       reviews: upsertReview(current.reviews, review),
     }));
     setSaveMessage(now);
@@ -233,6 +264,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     customAppCount: loadState.customApps.length,
     dayKey,
     draft,
+    hiddenBoardAppIds: loadState.hiddenBoardAppIds,
     loadError: loadState.loadError,
     recentEntries,
     reviews: loadState.reviews,
@@ -250,6 +282,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     todayReview,
     weeklySTier,
     dismissLoadError,
+    deleteBoardEntry,
     deleteCustomApp,
     isLoaded: loadState.isLoaded,
   };

@@ -53,7 +53,7 @@ Optional for later wallet expansion:
 
 - No fixed starter catalog
 - Users register each miniapp themselves with an image URL, public URL, and name
-- The registration form can try to autofill name, icon, and description from the public miniapp URL
+- The registration form can try to autofill name, miniapp manifest icon, and description from the public miniapp URL
 - One daily review slot keyed by `YYYY-MM-DD`
 - Inputs: tier, short note, fun, polish, come back
 - Latest review per miniapp powers the tier board
@@ -72,7 +72,7 @@ These are intentionally left as placeholders until deployment details are known:
 
 - Replace placeholder app URL, app ID, and Farcaster manifest signature values
 - Decide whether to add optional auto-discovery later, while keeping the no-backend fallback of manual registration
-- Decide whether to expand icon and metadata parsing beyond standard manifest / icon / Open Graph tags for more miniapp surfaces
+- Decide whether to expand miniapp manifest parsing beyond `/.well-known/farcaster.json` and standard icon tags for more miniapp surfaces
 - Decide whether to re-enable wallet connectors once project IDs and target wallet UX are finalized
 - Register the deployed domain with Warpcast Manifest Tool
 - Verify Farcaster / Base App embeds against the final production domain

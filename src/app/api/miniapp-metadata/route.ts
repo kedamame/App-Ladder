@@ -72,6 +72,15 @@ function extractBestManifestIcon(manifest: unknown) {
   return ranked[0]?.src?.trim() ?? "";
 }
 
+function extractMiniAppManifestIcon(manifest: unknown) {
+  if (!manifest || typeof manifest !== "object") {
+    return "";
+  }
+
+  const miniapp = (manifest as { miniapp?: { iconUrl?: string } }).miniapp;
+  return miniapp?.iconUrl?.trim() ?? "";
+}
+
 function parseLargestIconSize(value?: string) {
   if (!value) {
     return 0;
@@ -142,6 +151,37 @@ async function fetchManifestIcon(baseUrl: string, html: string) {
   }
 }
 
+async function fetchFarcasterManifestIcon(baseUrl: string) {
+  let manifestUrl = "";
+
+  try {
+    manifestUrl = new URL("/.well-known/farcaster.json", baseUrl).toString();
+  } catch {
+    return "";
+  }
+
+  try {
+    const response = await fetch(manifestUrl, {
+      headers: {
+        "user-agent": "App Ladder Metadata Bot/1.0 (+https://app-ladder.local)",
+        accept: "application/json,text/plain",
+      },
+      redirect: "follow",
+      cache: "no-store",
+      signal: AbortSignal.timeout(requestTimeoutMs),
+    });
+
+    if (!response.ok) {
+      return "";
+    }
+
+    const manifest = (await response.json()) as unknown;
+    return toAbsoluteUrl(manifestUrl, extractMiniAppManifestIcon(manifest));
+  } catch {
+    return "";
+  }
+}
+
 export async function POST(request: Request) {
   let url = "";
 
@@ -185,6 +225,7 @@ export async function POST(request: Request) {
 
     const html = (await response.text()).slice(0, maxHtmlLength);
     const resolvedUrl = response.url || target.toString();
+    const farcasterManifestIconUrl = await fetchFarcasterManifestIcon(resolvedUrl);
     const manifestIconUrl = await fetchManifestIcon(resolvedUrl, html);
     const linkIconUrl = toAbsoluteUrl(
       resolvedUrl,
@@ -198,6 +239,7 @@ export async function POST(request: Request) {
       extractMetaContent(html, "twitter:title") ||
       extractTitle(html);
     const imageUrl =
+      farcasterManifestIconUrl ||
       manifestIconUrl ||
       linkIconUrl ||
       toAbsoluteUrl(

@@ -11,6 +11,7 @@ import {
   tiers,
   type AppLocale,
   type MetricKey,
+  type CustomMiniAppInput,
   type MiniApp,
 } from "@/lib/app-ladder";
 import { useFarcasterMiniApp } from "@/lib/farcaster";
@@ -30,15 +31,24 @@ const metricLabels: Record<MetricKey, string> = {
   comeBack: "comeBack",
 };
 
+const emptyCustomAppDraft: CustomMiniAppInput = {
+  name: "",
+  category: "",
+  shortDescription: "",
+  externalUrl: "",
+};
+
 export function AppLadderShell({
   initialAppId,
   initialDay,
 }: AppLadderShellProps) {
   const { isInMiniApp, isLoading, user } = useFarcasterMiniApp();
   const {
+    addCustomApp,
     apps,
     board,
     categoryFilters,
+    customAppCount,
     dayKey,
     draft,
     loadError,
@@ -63,6 +73,10 @@ export function AppLadderShell({
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [reviewStatus, setReviewStatus] = useState("");
+  const [catalogStatus, setCatalogStatus] = useState("");
+  const [catalogQuery, setCatalogQuery] = useState("");
+  const [customAppDraft, setCustomAppDraft] =
+    useState<CustomMiniAppInput>(emptyCustomAppDraft);
   const [shareStatus, setShareStatus] = useState("");
   const shareCardRef = useRef<HTMLDivElement>(null);
   const text = uiCopy[locale];
@@ -73,8 +87,8 @@ export function AppLadderShell({
       ? "Farcaster miniapp"
       : "Browser / Base App";
   const shareCopy = useMemo(
-    () => buildShareCopy(shareTemplate, reviews, locale),
-    [locale, reviews, shareTemplate],
+    () => buildShareCopy(shareTemplate, apps, reviews, locale),
+    [apps, locale, reviews, shareTemplate],
   );
 
   const filteredBoard = useMemo(
@@ -98,6 +112,20 @@ export function AppLadderShell({
     () => filteredBoard.flatMap((column) => column.entries),
     [filteredBoard],
   );
+
+  const visibleApps = useMemo(() => {
+    const query = catalogQuery.trim().toLowerCase();
+
+    if (!query) {
+      return apps;
+    }
+
+    return apps.filter((app) =>
+      [app.name, app.category, app.shortDescription, app.externalUrl].some((value) =>
+        value.toLowerCase().includes(query),
+      ),
+    );
+  }, [apps, catalogQuery]);
 
   useEffect(() => {
     try {
@@ -128,6 +156,10 @@ export function AppLadderShell({
 
   function getCategoryLabel(category: string) {
     return category === "All" ? text.ladder.all : category;
+  }
+
+  function getAppSourceLabel(app: MiniApp) {
+    return app.source === "custom" ? text.review.sourceCustom : text.review.sourceCurated;
   }
 
   async function handleCopyShare() {
@@ -163,6 +195,34 @@ export function AppLadderShell({
   function handleSaveReview() {
     saveReview();
     setReviewStatus(text.review.saved(selectedApp.name, dayKey));
+  }
+
+  function handleCustomAppField<K extends keyof CustomMiniAppInput>(
+    key: K,
+    value: CustomMiniAppInput[K],
+  ) {
+    setCustomAppDraft((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  }
+
+  function handleAddCustomApp() {
+    const result = addCustomApp(customAppDraft);
+
+    if (result.status === "invalid") {
+      setCatalogStatus(text.review.addAnyInvalid);
+      return;
+    }
+
+    if (result.status === "existing") {
+      setCatalogStatus(text.review.addAnyExists(result.app.name));
+      return;
+    }
+
+    setCatalogStatus(text.review.addAnySaved(result.app.name));
+    setCatalogQuery("");
+    setCustomAppDraft(emptyCustomAppDraft);
   }
 
   return (
@@ -333,25 +393,112 @@ export function AppLadderShell({
             {reviewStatus ? <p className="status-inline">{reviewStatus}</p> : null}
           </div>
           <div className="review-grid">
-            <div className="catalog-grid">
-              {apps.map((app) => (
+            <div className="review-selector-stack">
+              <div className="catalog-toolbar">
+                <label className="search-field">
+                  <span className="field-label">{text.review.searchLabel}</span>
+                  <input
+                    onChange={(event) => setCatalogQuery(event.target.value)}
+                    placeholder={text.review.searchPlaceholder}
+                    type="search"
+                    value={catalogQuery}
+                  />
+                </label>
+                <p className="catalog-meta">
+                  {text.review.catalogCount(visibleApps.length, apps.length, customAppCount)}
+                </p>
+              </div>
+
+              {visibleApps.length ? (
+                <div className="catalog-grid">
+                  {visibleApps.map((app) => (
+                    <button
+                      key={app.id}
+                      className={clsx(
+                        "catalog-card",
+                        "catalog-card-refined",
+                        selectedAppId === app.id && "catalog-card-active",
+                      )}
+                      onClick={() => setSelectedAppId(app.id)}
+                      type="button"
+                    >
+                      <AppSticker app={app} compact />
+                      <div className="catalog-card-copy">
+                        <div className="catalog-card-head">
+                          <strong>{app.name}</strong>
+                          <span className="catalog-chip">{getAppSourceLabel(app)}</span>
+                        </div>
+                        <p>{app.category}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  title={text.review.noMatchesTitle}
+                  body={text.review.noMatchesBody}
+                />
+              )}
+
+              <div className="custom-app-card custom-app-card-refined">
+                <div className="section-heading section-heading-compact">
+                  <div>
+                    <p className="mini-profile-label">{text.review.addAnyTitle}</p>
+                    <h3>{text.review.addAnyTitle}</h3>
+                    <p>{text.review.addAnyBody}</p>
+                  </div>
+                </div>
+                {catalogStatus ? <p className="status-inline">{catalogStatus}</p> : null}
+                <div className="custom-form-grid">
+                  <label className="input-field input-field-full">
+                    <span className="field-label">{text.review.urlLabel}</span>
+                    <input
+                      onChange={(event) =>
+                        handleCustomAppField("externalUrl", event.target.value)
+                      }
+                      placeholder={text.review.urlPlaceholder}
+                      type="url"
+                      value={customAppDraft.externalUrl}
+                    />
+                  </label>
+                  <label className="input-field">
+                    <span className="field-label">{text.review.nameLabel}</span>
+                    <input
+                      onChange={(event) => handleCustomAppField("name", event.target.value)}
+                      placeholder={text.review.namePlaceholder}
+                      type="text"
+                      value={customAppDraft.name}
+                    />
+                  </label>
+                  <label className="input-field">
+                    <span className="field-label">{text.review.categoryLabel}</span>
+                    <input
+                      onChange={(event) => handleCustomAppField("category", event.target.value)}
+                      placeholder={text.review.categoryPlaceholder}
+                      type="text"
+                      value={customAppDraft.category}
+                    />
+                  </label>
+                  <label className="input-field input-field-full">
+                    <span className="field-label">{text.review.descriptionLabel}</span>
+                    <textarea
+                      onChange={(event) =>
+                        handleCustomAppField("shortDescription", event.target.value)
+                      }
+                      placeholder={text.review.descriptionPlaceholder}
+                      rows={3}
+                      value={customAppDraft.shortDescription}
+                    />
+                  </label>
+                </div>
                 <button
-                  key={app.id}
-                  className={clsx(
-                    "catalog-card",
-                    "catalog-card-refined",
-                    selectedAppId === app.id && "catalog-card-active",
-                  )}
-                  onClick={() => setSelectedAppId(app.id)}
+                  className="button-secondary full-width-button"
+                  onClick={handleAddCustomApp}
                   type="button"
                 >
-                  <AppSticker app={app} compact />
-                  <div>
-                    <strong>{app.name}</strong>
-                    <p>{app.category}</p>
-                  </div>
+                  {text.review.addAny}
                 </button>
-              ))}
+              </div>
             </div>
 
             <div className="review-panel review-panel-refined">
@@ -359,6 +506,7 @@ export function AppLadderShell({
                 <AppSticker app={selectedApp} />
                 <div>
                   <p className="mini-profile-label">{text.review.selected}</p>
+                  <span className="catalog-chip">{getAppSourceLabel(selectedApp)}</span>
                   <h3>{selectedApp.name}</h3>
                   <p>{selectedApp.shortDescription}</p>
                   <a href={selectedApp.externalUrl} rel="noreferrer" target="_blank">

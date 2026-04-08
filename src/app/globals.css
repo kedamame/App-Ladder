@@ -549,10 +549,25 @@ img {
   align-items: start;
 }
 
+.review-selector-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.catalog-toolbar {
+  display: grid;
+  gap: 10px;
+}
+
 .catalog-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.catalog-meta {
+  color: var(--muted);
+  font-size: 0.94rem;
 }
 
 .catalog-card {
@@ -573,6 +588,17 @@ img {
   font-size: 0.92rem;
 }
 
+.catalog-card-copy {
+  min-width: 0;
+}
+
+.catalog-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
 .catalog-card:hover,
 .review-list-item:hover {
   transform: translateY(-1px);
@@ -586,6 +612,15 @@ img {
 .review-panel {
   display: grid;
   gap: 18px;
+}
+
+.custom-app-card {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(22, 33, 61, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .selected-app-card {
@@ -604,6 +639,21 @@ img {
   gap: 18px;
 }
 
+.search-field input,
+.input-field input,
+.input-field textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid rgba(22, 33, 61, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.input-field textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
 .field-label {
   display: inline-flex;
   margin-bottom: 10px;
@@ -617,6 +667,38 @@ img {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.custom-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.input-field {
+  display: grid;
+}
+
+.input-field-full {
+  grid-column: 1 / -1;
+}
+
+.catalog-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid rgba(22, 33, 61, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--muted);
+  font-family: var(--font-editor-mono), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.section-heading-compact {
+  align-items: start;
 }
 
 .tier-option {
@@ -878,6 +960,10 @@ img {
   }
 
   .catalog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-form-grid {
     grid-template-columns: 1fr;
   }
 

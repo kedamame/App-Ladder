@@ -50,6 +50,7 @@ export function AppLadderShell({
     board,
     categoryFilters,
     dayKey,
+    deleteCustomApp,
     draft,
     loadError,
     recentEntries,
@@ -231,6 +232,25 @@ export function AppLadderShell({
     setCatalogStatus(text.review.addAnySaved(result.app.name));
     setCatalogQuery("");
     setCustomAppDraft(emptyCustomAppDraft);
+  }
+
+  function handleDeleteCustomApp(app: MiniApp) {
+    if (!window.confirm(text.review.deleteConfirm(app.name))) {
+      return;
+    }
+
+    const result = deleteCustomApp(app.id);
+
+    if (result.status === "missing") {
+      setCatalogStatus(text.review.deleteMissing);
+      return;
+    }
+
+    setCatalogStatus(text.review.deleteDone(result.app.name));
+
+    if (selectedAppId === app.id) {
+      setReviewStatus("");
+    }
   }
 
   async function handleAutofillFromUrl() {
@@ -492,6 +512,18 @@ export function AppLadderShell({
                       <div className="catalog-card-copy">
                         <div className="catalog-card-head">
                           <strong>{app.name}</strong>
+                          <button
+                            aria-label={text.review.deleteAction}
+                            className="icon-button-delete"
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              handleDeleteCustomApp(app);
+                            }}
+                            type="button"
+                          >
+                            {text.review.deleteAction}
+                          </button>
                         </div>
                         <p>{app.category}</p>
                       </div>
@@ -587,7 +619,16 @@ export function AppLadderShell({
                 <div className="selected-app-card selected-app-card-refined">
                   <AppSticker app={selectedApp} />
                   <div>
-                    <p className="mini-profile-label">{text.review.selected}</p>
+                    <div className="selected-app-head">
+                      <p className="mini-profile-label">{text.review.selected}</p>
+                      <button
+                        className="icon-button-delete"
+                        onClick={() => handleDeleteCustomApp(selectedApp)}
+                        type="button"
+                      >
+                        {text.review.deleteAction}
+                      </button>
+                    </div>
                     <h3>{selectedApp.name}</h3>
                     <p>{selectedApp.shortDescription}</p>
                     <a href={selectedApp.externalUrl} rel="noreferrer" target="_blank">

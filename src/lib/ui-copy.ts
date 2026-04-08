@@ -87,6 +87,11 @@ export const uiCopy = {
       addAnySaved: (name: string) => `${name} is now on your shelf and ready to review.`,
       addAnyExists: (name: string) => `${name} is already on your shelf.`,
       addAnyInvalid: "Enter a miniapp name, image URL, and valid public URL.",
+      deleteAction: "Delete",
+      deleteConfirm: (name: string) =>
+        `Delete ${name} from your shelf? Its saved reviews will also be removed.`,
+      deleteDone: (name: string) => `${name} was deleted from your shelf.`,
+      deleteMissing: "That miniapp is already gone.",
       tier: "Tier",
       shortNote: "Short note",
       placeholder: "What made this one stick with you today?",
@@ -152,7 +157,7 @@ export const uiCopy = {
     heroEyebrow: "デイリー・エディトリアル・ボード",
     heroTitle: "自分で集めた miniapp を、1日1本ずつ静かに順位づけ。",
     heroText:
-      "App Ladder は固定のおすすめをやめて、自分で登録した miniapp から始まる形にしました。画像 URL、公開リンク、名前を保存して、自分の趣味でボードを育てられます。",
+      "App Ladder は自分で登録した miniapp から始まります。画像 URL、公開リンク、名前を保存して、自分の趣味で board を育てられます。",
     todayPick: "今日の登録済み pick",
     startReview: "登録して今日のレビューへ",
     openShare: "共有スタジオを開く",
@@ -218,6 +223,11 @@ export const uiCopy = {
       addAnySaved: (name: string) => `${name} を棚に保存しました。すぐレビューできます。`,
       addAnyExists: (name: string) => `${name} はすでに棚にあります。`,
       addAnyInvalid: "miniapp 名、画像 URL、公開 URL を入力してください。",
+      deleteAction: "削除",
+      deleteConfirm: (name: string) =>
+        `${name} を棚から削除しますか？ 保存済みレビューも一緒に消えます。`,
+      deleteDone: (name: string) => `${name} を棚から削除しました。`,
+      deleteMissing: "その miniapp はすでに削除されています。",
       tier: "Tier",
       shortNote: "ひとことメモ",
       placeholder: "今日は何が刺さったかを書いてください。",

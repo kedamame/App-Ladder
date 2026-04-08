@@ -45,6 +45,10 @@ type AddCustomMiniAppResult =
   | { status: "existing"; app: MiniApp }
   | { status: "created"; app: MiniApp };
 
+type DeleteCustomMiniAppResult =
+  | { status: "missing"; app: null }
+  | { status: "deleted"; app: MiniApp };
+
 function parseStoredState(rawValue: string | null): PersistedState {
   if (!rawValue) {
     return { reviews: [], customApps: [] };
@@ -172,6 +176,26 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     return { status: "created", app: nextApp };
   }
 
+  function deleteCustomApp(appId: string): DeleteCustomMiniAppResult {
+    const existingApp = findMiniApp(loadState.customApps, appId);
+
+    if (!existingApp) {
+      return { status: "missing", app: null };
+    }
+
+    setLoadState((current) => ({
+      ...current,
+      customApps: current.customApps.filter((app) => app.id !== appId),
+      reviews: current.reviews.filter((review) => review.appId !== appId),
+    }));
+
+    if (selectedAppId === appId) {
+      setSelectedAppId("");
+    }
+
+    return { status: "deleted", app: existingApp };
+  }
+
   function saveReview() {
     if (!selectedApp) {
       return null;
@@ -226,6 +250,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     todayReview,
     weeklySTier,
     dismissLoadError,
+    deleteCustomApp,
     isLoaded: loadState.isLoaded,
   };
 }

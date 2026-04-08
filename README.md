@@ -54,6 +54,7 @@ Optional for later wallet expansion:
 - No fixed starter catalog
 - Users register each miniapp themselves with an image URL, public URL, and name
 - The registration form can try to autofill name, miniapp manifest icon, and description from the public miniapp URL
+- Registered miniapps can be deleted and re-added, and their saved reviews are removed with them
 - One daily review slot keyed by `YYYY-MM-DD`
 - Inputs: tier, short note, fun, polish, come back
 - Latest review per miniapp powers the tier board

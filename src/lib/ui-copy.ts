@@ -18,9 +18,9 @@ export const uiCopy = {
   en: {
     nav: { today: "Today", review: "Review", ladder: "Ladder", share: "Share" },
     heroEyebrow: "Daily editorial board",
-    heroTitle: "Build a private miniapp shelf, then rank it one day at a time.",
+    heroTitle: "Make your own miniapp tier board, then share it.",
     heroText:
-      "App Ladder now starts from your own saved miniapps. Register the image, link, and name first, then let the board grow around your actual taste.",
+      "Save the miniapps you want to track, shape them into a personal tier list, and export a shareable board whenever you want.",
     todayPick: "Today's registered pick",
     startReview: "Register or review today",
     openShare: "Open share studio",
@@ -160,9 +160,9 @@ export const uiCopy = {
   ja: {
     nav: { today: "今日", review: "レビュー", ladder: "ラダー", share: "共有" },
     heroEyebrow: "デイリー・エディトリアル・ボード",
-    heroTitle: "自分で集めた miniapp を、1日1本ずつ静かに順位づけ。",
+    heroTitle: "miniapp の tier 表を作って、共有できる。",
     heroText:
-      "App Ladder は自分で登録した miniapp から始まります。画像 URL、公開リンク、名前を保存して、自分の趣味で board を育てられます。",
+      "気になる miniapp を登録して自分だけの tier 表を作り、好きなタイミングで共有カードとして見せられます。",
     todayPick: "今日の登録済み pick",
     startReview: "登録して今日のレビューへ",
     openShare: "共有スタジオを開く",

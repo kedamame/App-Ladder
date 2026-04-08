@@ -861,6 +861,11 @@ img {
   margin-top: 16px;
 }
 
+.share-copy-box p {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .share-action-row {
   display: flex;
   flex-wrap: wrap;

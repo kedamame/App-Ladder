@@ -361,7 +361,7 @@ export function buildShareCopy(
   locale: AppLocale = "en",
 ) {
   const entries = buildTierEntries(apps, reviews);
-  const topThree = [...entries]
+  const rankedEntries = [...entries]
     .sort((left, right) => {
       if (left.review.tier === right.review.tier) {
         return right.averageScore - left.averageScore;
@@ -369,33 +369,57 @@ export function buildShareCopy(
 
       return tiers.indexOf(left.review.tier) - tiers.indexOf(right.review.tier);
     })
-    .slice(0, 3)
-    .map((entry) => entry.app.name);
+    .slice(0, 3);
 
-  const sTierNames = entries
-    .filter((entry) => entry.review.tier === "S")
-    .slice(0, 4)
-    .map((entry) => entry.app.name);
+  const sTierEntries = entries.filter((entry) => entry.review.tier === "S").slice(0, 4);
+  const hiddenGemEntry = rankedEntries[2] ?? rankedEntries[0] ?? null;
+
+  const appendLinks = (summary: string, linkedEntries: TierEntry[]) => {
+    if (!linkedEntries.length) {
+      return summary;
+    }
+
+    const links = linkedEntries.map((entry) => `${entry.app.name}: ${entry.app.externalUrl}`);
+    return `${summary}\n\n${links.join("\n")}`;
+  };
 
   if (locale === "ja") {
     if (template === "top-3") {
-      return `いまの App Ladder Top 3: ${topThree.join("、") || "まだランキング中。"}`;
+      return appendLinks(
+        `いまの App Ladder Top 3: ${rankedEntries.map((entry) => entry.app.name).join("、") || "まだランキング中。"}`,
+        rankedEntries,
+      );
     }
 
     if (template === "hidden-gem") {
-      return `App Ladder の隠れ推し: ${topThree[2] ?? topThree[0] ?? "まだ探索中。"}`;
+      return appendLinks(
+        `App Ladder の隠れ推し: ${hiddenGemEntry?.app.name ?? "まだ探索中。"}`,
+        hiddenGemEntry ? [hiddenGemEntry] : [],
+      );
     }
 
-    return `今週の S tier: ${sTierNames.join("、") || "まだ S tier はありません。"}`;
+    return appendLinks(
+      `今週の S tier: ${sTierEntries.map((entry) => entry.app.name).join("、") || "まだ S tier はありません。"}`,
+      sTierEntries,
+    );
   }
 
   if (template === "top-3") {
-    return `My App Ladder top 3 right now: ${topThree.join(", ") || "still ranking."}`;
+    return appendLinks(
+      `My App Ladder top 3 right now: ${rankedEntries.map((entry) => entry.app.name).join(", ") || "still ranking."}`,
+      rankedEntries,
+    );
   }
 
   if (template === "hidden-gem") {
-    return `Hidden gem from my App Ladder board: ${topThree[2] ?? topThree[0] ?? "still looking."}`;
+    return appendLinks(
+      `Hidden gem from my App Ladder board: ${hiddenGemEntry?.app.name ?? "still looking."}`,
+      hiddenGemEntry ? [hiddenGemEntry] : [],
+    );
   }
 
-  return `This week's S tier on App Ladder: ${sTierNames.join(", ") || "none yet, still climbing."}`;
+  return appendLinks(
+    `This week's S tier on App Ladder: ${sTierEntries.map((entry) => entry.app.name).join(", ") || "none yet, still climbing."}`,
+    sTierEntries,
+  );
 }

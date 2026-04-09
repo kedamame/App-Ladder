@@ -121,6 +121,8 @@ export function AppLadderShell({
           title: "My miniapp tier board",
           body: "A shareable board of the miniapps I reviewed on App Ladder, sorted into S / A / B / C / D by my own scale.",
         };
+  const ladderEmptyTitle = (tier: string) =>
+    locale === "ja" ? `${tier} tier はありません` : `No ${tier} tier`;
 
   const surface = isLoading
     ? text.detectSurface
@@ -950,7 +952,7 @@ export function AppLadderShell({
                   ))
                 ) : (
                   <EmptyState
-                    title={text.ladder.emptyTitle(column.tier)}
+                    title={ladderEmptyTitle(column.tier)}
                     body={text.ladder.emptyBody}
                     compact
                   />

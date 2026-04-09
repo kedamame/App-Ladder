@@ -88,7 +88,7 @@ export const uiCopy = {
       addAnyExists: (name: string) => `${name} is already on your shelf.`,
       addAnyInvalid: "Enter a miniapp name, image URL, and valid public URL.",
       tierFull: (tier: string, count: number) =>
-        `${tier} tier already has ${count} miniapps. Remove one or choose another tier.`,
+        `${tier} tier already has ${count} miniapp. Remove it or choose another tier.`,
       deleteAction: "Delete",
       deleteConfirm: (name: string) =>
         `Delete ${name} from your shelf? Its saved reviews will also be removed.`,
@@ -107,7 +107,7 @@ export const uiCopy = {
     ladder: {
       kicker: "Ladder",
       title: "A tier board for the miniapps you reviewed",
-      body: "Each saved review places a miniapp into S / A / B / C / D using its latest rating, with up to five miniapps per tier. Filter by category, switch the order, or save the full board as an image.",
+      body: "Each saved review places a miniapp into S / A / B / C / D using its latest rating. Each tier can hold one miniapp at a time, and you can save the full board as an image.",
       all: "All",
       savePng: "Save board PNG",
       newest: "Newest first",
@@ -235,7 +235,7 @@ export const uiCopy = {
       addAnyExists: (name: string) => `${name} はすでに棚にあります。`,
       addAnyInvalid: "miniapp 名、画像 URL、公開 URL を入力してください。",
       tierFull: (tier: string, count: number) =>
-        `${tier} tier はすでに ${count} 件あります。1つ外すか、別の tier を選んでください。`,
+        `${tier} tier にはすでに ${count} 件あります。いまの項目を外すか、別の tier を選んでください。`,
       deleteAction: "削除",
       deleteConfirm: (name: string) =>
         `${name} を棚から削除しますか？ 保存済みレビューも一緒に消えます。`,
@@ -254,7 +254,7 @@ export const uiCopy = {
     ladder: {
       kicker: "ラダー",
       title: "レビューした miniapp を S〜D で並べる tier 表",
-      body: "保存したレビューが、miniapp ごとの最新評価として S / A / B / C / D に並びます。各 tier には最大5件まで入り、カテゴリや順番の切り替えや画像保存もできます。",
+      body: "保存したレビューが、miniapp ごとの最新評価として S / A / B / C / D に並びます。各 tier には1つずつ登録でき、ボード全体を画像保存することもできます。",
       all: "すべて",
       savePng: "ボードを PNG 保存",
       newest: "新しい順",

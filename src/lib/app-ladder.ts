@@ -385,16 +385,17 @@ export function getShareEntriesForTemplate(
 ) {
   const entries = buildTierEntries(apps, reviews);
   const board = buildTierBoard(apps, reviews);
-  const topTierEntries = ["S", "A", "B"]
-    .map((tier) => board.find((column) => column.tier === tier)?.entries[0] ?? null)
+  const topTierEntries = board
+    .map((column) => column.entries[0] ?? null)
     .filter((entry): entry is TierEntry => Boolean(entry));
+  const topBoardEntries = topTierEntries.slice(0, 3);
 
   if (template === "top-3") {
-    return topTierEntries;
+    return topBoardEntries;
   }
 
   if (template === "hidden-gem") {
-    const hiddenGemEntry = topTierEntries[2] ?? topTierEntries[0] ?? null;
+    const hiddenGemEntry = topBoardEntries[2] ?? topBoardEntries[0] ?? null;
     return hiddenGemEntry ? [hiddenGemEntry] : [];
   }
 

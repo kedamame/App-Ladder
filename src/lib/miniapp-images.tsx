@@ -144,14 +144,14 @@ export function createMiniAppImage(kind: ImageKind) {
         <div style={{ display: "flex", position: "relative", flexDirection: "column" }}>
           <div
             style={{
-              display: "inline-flex",
-              width: "fit-content",
+              display: "flex",
               borderRadius: 999,
               border: "2px solid rgba(22, 33, 61, 0.12)",
               padding: kind === "icon" || kind === "splash" ? "8px 12px" : "12px 18px",
               background: "rgba(255, 255, 255, 0.82)",
               fontSize: kind === "icon" || kind === "splash" ? 28 : 32,
               letterSpacing: "0.16em",
+              alignSelf: "flex-start",
             }}
           >
             {preset.kicker}
@@ -163,7 +163,7 @@ export function createMiniAppImage(kind: ImageKind) {
             style={{
               display: "flex",
               width: kind === "icon" || kind === "splash" ? "100%" : 220,
-              height: kind === "icon" || kind === "splash" ? undefined : 220,
+              height: kind === "icon" || kind === "splash" ? "100%" : 220,
               alignItems: "center",
               justifyContent: "center",
               alignSelf: kind === "icon" || kind === "splash" ? "center" : "flex-start",

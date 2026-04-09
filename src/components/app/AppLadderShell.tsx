@@ -817,7 +817,6 @@ export function AppLadderShell({
               <div key={column.tier} className="tier-column tier-column-refined">
                 <div className="tier-column-head">
                   <span>{column.tier}</span>
-                  <small>{column.entries.length}</small>
                 </div>
                 {column.entries.length ? (
                   column.entries.map((entry) => (

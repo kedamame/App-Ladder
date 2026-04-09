@@ -1050,6 +1050,21 @@ img {
   display: none;
 }
 
+.ladder-exporting .section-heading h2 {
+  max-width: none;
+  white-space: nowrap;
+}
+
+.ladder-exporting .section-heading,
+.ladder-exporting .section-heading > div {
+  width: 100%;
+  max-width: none;
+}
+
+.ladder-exporting .section-heading > div p {
+  max-width: none;
+}
+
 .app-sticker {
   display: inline-flex;
   align-items: center;

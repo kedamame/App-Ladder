@@ -1064,6 +1064,30 @@ img {
   max-width: none;
 }
 
+.ladder-exporting .tier-column-refined {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.ladder-exporting .tier-column-head {
+  margin-bottom: 0;
+}
+
+.ladder-exporting .tier-entry,
+.ladder-exporting .tier-column .empty-state {
+  grid-column: 1 / -1;
+}
+
+.ladder-exporting .tier-entry {
+  gap: 18px;
+}
+
+.ladder-exporting .tier-entry .app-sticker-compact {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+}
+
 .app-sticker {
   display: inline-flex;
   align-items: center;

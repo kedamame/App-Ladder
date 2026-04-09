@@ -999,6 +999,11 @@ img {
   padding: 14px;
 }
 
+.ladder-exporting .tier-column .empty-state strong,
+.ladder-exporting .tier-column .empty-state p {
+  visibility: hidden;
+}
+
 .app-sticker {
   display: inline-flex;
   align-items: center;

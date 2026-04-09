@@ -84,6 +84,7 @@ export function AppLadderShell({
     useState<CustomMiniAppInput>(emptyCustomAppDraft);
   const [isAutofilling, setIsAutofilling] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
+  const [isExportingLadder, setIsExportingLadder] = useState(false);
   const ladderCardRef = useRef<HTMLElement | null>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
   const text = uiCopy[locale];
@@ -204,6 +205,10 @@ export function AppLadderShell({
     }
 
     try {
+      setIsExportingLadder(true);
+      await new Promise<void>((resolve) => {
+        window.requestAnimationFrame(() => resolve());
+      });
       const dataUrl = await toPng(ladderCardRef.current, {
         cacheBust: true,
         pixelRatio: 2,
@@ -215,6 +220,8 @@ export function AppLadderShell({
       setLadderStatus(text.ladder.pngSaved);
     } catch {
       setLadderStatus(text.ladder.pngFailed);
+    } finally {
+      setIsExportingLadder(false);
     }
   }
 
@@ -779,7 +786,12 @@ export function AppLadderShell({
         <article
           id="ladder"
           ref={ladderCardRef}
-          className="board-card board-card-wide board-card-refined"
+          className={clsx(
+            "board-card",
+            "board-card-wide",
+            "board-card-refined",
+            isExportingLadder && "ladder-exporting",
+          )}
         >
           <div className="card-kicker">{text.ladder.kicker}</div>
           <div className="section-heading">

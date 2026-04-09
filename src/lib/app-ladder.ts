@@ -1,4 +1,5 @@
 export const tiers = ["S", "A", "B", "C", "D"] as const;
+export const maxTierEntries = 5;
 
 export const metricKeys = ["fun", "polish", "comeBack"] as const;
 

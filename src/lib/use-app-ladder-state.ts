@@ -15,9 +15,11 @@ import {
   getReviewStreak,
   getTodayReview,
   getWeekSTier,
+  maxTierEntries,
   normalizeDayKey,
   normalizeMiniAppUrl,
   pickAppForDay,
+  type Tier,
   type CustomMiniAppInput,
   type MiniApp,
   type ReviewDraft,
@@ -55,6 +57,11 @@ type DeleteCustomMiniAppResult =
 type DeleteBoardEntryResult =
   | { status: "missing"; app: null }
   | { status: "deleted"; app: MiniApp };
+
+type SaveReviewResult =
+  | { status: "saved"; review: StoredReview }
+  | { status: "tier-full"; tier: Tier }
+  | null;
 
 function parseStoredState(rawValue: string | null): PersistedState {
   if (!rawValue) {
@@ -231,9 +238,22 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     return { status: "deleted", app: existingApp };
   }
 
-  function saveReview() {
+  function saveReview(): SaveReviewResult {
     if (!selectedApp) {
       return null;
+    }
+
+    const tierCount =
+      board
+        .find((column) => column.tier === draft.tier)
+        ?.entries.filter(
+          (entry) =>
+            !loadState.hiddenBoardAppIds.includes(entry.app.id) &&
+            entry.app.id !== selectedApp.id,
+        ).length ?? 0;
+
+    if (tierCount >= maxTierEntries) {
+      return { status: "tier-full", tier: draft.tier };
     }
 
     const now = new Date().toISOString();
@@ -254,7 +274,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
       reviews: upsertReview(current.reviews, review),
     }));
     setSaveMessage(now);
-    return review;
+    return { status: "saved", review };
   }
 
   function dismissLoadError() {

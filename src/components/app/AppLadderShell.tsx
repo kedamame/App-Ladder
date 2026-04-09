@@ -9,6 +9,7 @@ import { appConfig } from "@/lib/config";
 import {
   buildShareCopy,
   getShareEntriesForTemplate,
+  maxTierEntries,
   tiers,
   type AppLocale,
   type CustomMiniAppInput,
@@ -84,6 +85,7 @@ export function AppLadderShell({
     useState<CustomMiniAppInput>(emptyCustomAppDraft);
   const [isAutofilling, setIsAutofilling] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
+  const ladderCardRef = useRef<HTMLElement | null>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
   const text = uiCopy[locale];
 
@@ -201,13 +203,45 @@ export function AppLadderShell({
     }
   }
 
+  async function handleDownloadLadderCard() {
+    if (!ladderCardRef.current) {
+      setLadderStatus(text.ladder.notReady);
+      return;
+    }
+
+    try {
+      const dataUrl = await toPng(ladderCardRef.current, {
+        cacheBust: true,
+        pixelRatio: 2,
+      });
+      const anchor = document.createElement("a");
+      anchor.download = `app-ladder-board-${dayKey}.png`;
+      anchor.href = dataUrl;
+      anchor.click();
+      setLadderStatus(text.ladder.pngSaved);
+    } catch {
+      setLadderStatus(text.ladder.pngFailed);
+    }
+  }
+
   function handleSaveReview() {
     if (!selectedApp) {
       setReviewStatus(text.review.saveDisabled);
       return;
     }
 
-    saveReview();
+    const result = saveReview();
+
+    if (!result) {
+      setReviewStatus(text.review.saveDisabled);
+      return;
+    }
+
+    if (result.status === "tier-full") {
+      setReviewStatus(text.review.tierFull(result.tier, maxTierEntries));
+      return;
+    }
+
     setReviewStatus(text.review.saved(selectedApp.name, dayKey));
   }
 
@@ -748,7 +782,11 @@ export function AppLadderShell({
           </div>
         </article>
 
-        <article id="ladder" className="board-card board-card-wide board-card-refined">
+        <article
+          id="ladder"
+          ref={ladderCardRef}
+          className="board-card board-card-wide board-card-refined"
+        >
           <div className="card-kicker">{text.ladder.kicker}</div>
           <div className="section-heading">
             <div>
@@ -775,6 +813,9 @@ export function AppLadderShell({
               ))}
             </div>
             <div className="control-group">
+              <button className="button-secondary" onClick={handleDownloadLadderCard} type="button">
+                {text.ladder.savePng}
+              </button>
               {[
                 { id: "newest", label: text.ladder.newest },
                 { id: "oldest", label: text.ladder.oldest },

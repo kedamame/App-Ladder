@@ -87,6 +87,8 @@ export const uiCopy = {
       addAnySaved: (name: string) => `${name} is now on your shelf and ready to review.`,
       addAnyExists: (name: string) => `${name} is already on your shelf.`,
       addAnyInvalid: "Enter a miniapp name, image URL, and valid public URL.",
+      tierFull: (tier: string, count: number) =>
+        `${tier} tier already has ${count} miniapps. Remove one or choose another tier.`,
       deleteAction: "Delete",
       deleteConfirm: (name: string) =>
         `Delete ${name} from your shelf? Its saved reviews will also be removed.`,
@@ -105,10 +107,14 @@ export const uiCopy = {
     ladder: {
       kicker: "Ladder",
       title: "A tier board for the miniapps you reviewed",
-      body: "Each saved review places a miniapp into S / A / B / C / D using its latest rating. Filter by category and switch the order to read the board more easily.",
+      body: "Each saved review places a miniapp into S / A / B / C / D using its latest rating, with up to five miniapps per tier. Filter by category, switch the order, or save the full board as an image.",
       all: "All",
+      savePng: "Save board PNG",
       newest: "Newest first",
       oldest: "Oldest first",
+      notReady: "Board image preview is not ready yet.",
+      pngSaved: "Board image saved as PNG.",
+      pngFailed: "Board image export failed in this browser.",
       deleteAction: "Remove",
       deleteConfirm: (name: string) =>
         `Remove ${name} from the current board? The miniapp will stay on your shelf.`,
@@ -228,6 +234,8 @@ export const uiCopy = {
       addAnySaved: (name: string) => `${name} を棚に保存しました。すぐレビューできます。`,
       addAnyExists: (name: string) => `${name} はすでに棚にあります。`,
       addAnyInvalid: "miniapp 名、画像 URL、公開 URL を入力してください。",
+      tierFull: (tier: string, count: number) =>
+        `${tier} tier はすでに ${count} 件あります。1つ外すか、別の tier を選んでください。`,
       deleteAction: "削除",
       deleteConfirm: (name: string) =>
         `${name} を棚から削除しますか？ 保存済みレビューも一緒に消えます。`,
@@ -246,10 +254,14 @@ export const uiCopy = {
     ladder: {
       kicker: "ラダー",
       title: "レビューした miniapp を S〜D で並べる tier 表",
-      body: "保存したレビューが、miniapp ごとの最新評価として S / A / B / C / D に並びます。カテゴリや順番も切り替えられます。",
+      body: "保存したレビューが、miniapp ごとの最新評価として S / A / B / C / D に並びます。各 tier には最大5件まで入り、カテゴリや順番の切り替えや画像保存もできます。",
       all: "すべて",
+      savePng: "ボードを PNG 保存",
       newest: "新しい順",
       oldest: "古い順",
+      notReady: "ボード画像はまだ準備できていません。",
+      pngSaved: "ボード画像を PNG で保存しました。",
+      pngFailed: "このブラウザではボード画像の書き出しに失敗しました。",
       deleteAction: "外す",
       deleteConfirm: (name: string) =>
         `${name} を今回の board から外しますか？ miniapp の登録自体は残ります。`,

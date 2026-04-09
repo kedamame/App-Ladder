@@ -846,7 +846,7 @@ export function AppLadderShell({
                   column.entries.map((entry) => (
                     <div key={entry.review.id} className="tier-entry tier-entry-refined">
                       <AppSticker app={entry.app} compact />
-                      <div>
+                      <div className="tier-entry-copy">
                         <div className="tier-entry-head">
                           <strong>{`${entry.review.tier} tier | ${entry.app.name}`}</strong>
                           <button
@@ -858,6 +858,17 @@ export function AppLadderShell({
                           </button>
                         </div>
                         <p>{entry.review.note || text.ladder.noNote}</p>
+                        <div className="tier-score-grid">
+                          <span className="catalog-chip">
+                            {text.review.fun} {entry.review.scores.fun}
+                          </span>
+                          <span className="catalog-chip">
+                            {text.review.polish} {entry.review.scores.polish}
+                          </span>
+                          <span className="catalog-chip">
+                            {text.review.comeBack} {entry.review.scores.comeBack}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))

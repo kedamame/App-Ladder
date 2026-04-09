@@ -811,7 +811,7 @@ img {
 
 .tier-board-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
   margin-top: 22px;
 }
@@ -836,6 +836,17 @@ img {
   display: grid;
   align-content: start;
   gap: 10px;
+}
+
+.tier-column-refined {
+  grid-template-columns: minmax(84px, 120px) 1fr;
+  align-items: start;
+  gap: 18px;
+}
+
+.tier-column-refined .empty-state,
+.tier-column-refined .tier-entry {
+  margin-top: 0;
 }
 
 .share-template-row {
@@ -919,6 +930,22 @@ img {
 .weekly-item,
 .tier-entry {
   padding: 12px;
+}
+
+.tier-entry {
+  align-items: flex-start;
+}
+
+.tier-entry-copy {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.tier-score-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .empty-state {
@@ -1041,6 +1068,10 @@ img {
 
   .controls-row {
     flex-direction: column;
+  }
+
+  .tier-column-refined {
+    grid-template-columns: 1fr;
   }
 }
 

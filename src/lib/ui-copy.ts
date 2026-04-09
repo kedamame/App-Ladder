@@ -104,8 +104,8 @@ export const uiCopy = {
     },
     ladder: {
       kicker: "Ladder",
-      title: "A private tier board with your own miniapp shelf behind it",
-      body: "Filter by category, switch the order, and keep the latest review per miniapp as the board truth.",
+      title: "A tier board for the miniapps you reviewed",
+      body: "Each saved review places a miniapp into S / A / B / C / D using its latest rating. Filter by category and switch the order to read the board more easily.",
       all: "All",
       newest: "Newest first",
       oldest: "Oldest first",
@@ -245,8 +245,8 @@ export const uiCopy = {
     },
     ladder: {
       kicker: "ラダー",
-      title: "自分の miniapp 棚から育つ private tier board",
-      body: "カテゴリで絞り込み、並び順を変え、miniapp ごとの最新レビューをボードの真実として扱います。",
+      title: "レビューした miniapp を S〜D で並べる tier 表",
+      body: "保存したレビューが、miniapp ごとの最新評価として S / A / B / C / D に並びます。カテゴリや順番も切り替えられます。",
       all: "すべて",
       newest: "新しい順",
       oldest: "古い順",

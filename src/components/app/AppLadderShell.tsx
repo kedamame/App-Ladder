@@ -111,6 +111,16 @@ export function AppLadderShell({
             `${name} is already at the edge of the board in ${tier} tier.`,
           missing: "That board entry is no longer available.",
         };
+  const ladderExportCopy =
+    locale === "ja"
+      ? {
+          title: "私の miniapp tier board",
+          body: "App Ladder でレビューした miniapp を、自分の基準で S / A / B / C / D に並べた共有用ボードです。",
+        }
+      : {
+          title: "My miniapp tier board",
+          body: "A shareable board of the miniapps I reviewed on App Ladder, sorted into S / A / B / C / D by my own scale.",
+        };
 
   const surface = isLoading
     ? text.detectSurface
@@ -847,8 +857,8 @@ export function AppLadderShell({
           <div className="card-kicker">{text.ladder.kicker}</div>
           <div className="section-heading">
             <div>
-              <h2>{text.ladder.title}</h2>
-              <p>{text.ladder.body}</p>
+              <h2>{isExportingLadder ? ladderExportCopy.title : text.ladder.title}</h2>
+              <p>{isExportingLadder ? ladderExportCopy.body : text.ladder.body}</p>
             </div>
             {ladderStatus ? <p className="status-inline">{ladderStatus}</p> : null}
           </div>

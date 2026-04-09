@@ -1043,6 +1043,13 @@ img {
   visibility: hidden;
 }
 
+.ladder-exporting .card-kicker,
+.ladder-exporting .controls-row,
+.ladder-exporting .status-inline,
+.ladder-exporting .tier-entry-actions {
+  display: none;
+}
+
 .app-sticker {
   display: inline-flex;
   align-items: center;

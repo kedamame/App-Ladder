@@ -76,7 +76,6 @@ export function AppLadderShell({
   } = useAppLadderState(initialAppId, initialDay);
   const [locale, setLocale] = useState<AppLocale>("en");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [ladderStatus, setLadderStatus] = useState("");
   const [reviewStatus, setReviewStatus] = useState("");
   const [catalogStatus, setCatalogStatus] = useState("");
@@ -107,14 +106,9 @@ export function AppLadderShell({
           .filter((entry) => !hiddenBoardAppIds.includes(entry.app.id))
           .filter((entry) =>
             selectedCategory === "All" ? true : entry.app.category === selectedCategory,
-          )
-          .sort((left, right) =>
-            sortOrder === "newest"
-              ? right.review.updatedAt.localeCompare(left.review.updatedAt)
-              : left.review.updatedAt.localeCompare(right.review.updatedAt),
           ),
       })),
-    [board, hiddenBoardAppIds, selectedCategory, sortOrder],
+    [board, hiddenBoardAppIds, selectedCategory],
   );
 
   const shareEntries = useMemo(
@@ -816,23 +810,6 @@ export function AppLadderShell({
               <button className="button-secondary" onClick={handleDownloadLadderCard} type="button">
                 {text.ladder.savePng}
               </button>
-              {[
-                { id: "newest", label: text.ladder.newest },
-                { id: "oldest", label: text.ladder.oldest },
-              ].map((option) => (
-                <button
-                  key={option.id}
-                  className={clsx(
-                    "control-pill",
-                    "control-pill-refined",
-                    sortOrder === option.id && "control-pill-active",
-                  )}
-                  onClick={() => setSortOrder(option.id as typeof sortOrder)}
-                  type="button"
-                >
-                  {option.label}
-                </button>
-              ))}
             </div>
           </div>
           <div className="tier-board-grid tier-board-grid-refined">

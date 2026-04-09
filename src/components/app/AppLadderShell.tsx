@@ -859,14 +859,21 @@ export function AppLadderShell({
                         </div>
                         <p>{entry.review.note || text.ladder.noNote}</p>
                         <div className="tier-score-grid">
-                          <span className="catalog-chip">
-                            {text.review.fun} {entry.review.scores.fun}
+                          <span className="tier-score-chip">
+                            <span className="tier-score-chip-label">{text.review.fun}</span>
+                            <strong className="tier-score-chip-value">{entry.review.scores.fun}</strong>
                           </span>
-                          <span className="catalog-chip">
-                            {text.review.polish} {entry.review.scores.polish}
+                          <span className="tier-score-chip">
+                            <span className="tier-score-chip-label">{text.review.polish}</span>
+                            <strong className="tier-score-chip-value">
+                              {entry.review.scores.polish}
+                            </strong>
                           </span>
-                          <span className="catalog-chip">
-                            {text.review.comeBack} {entry.review.scores.comeBack}
+                          <span className="tier-score-chip">
+                            <span className="tier-score-chip-label">{text.review.comeBack}</span>
+                            <strong className="tier-score-chip-value">
+                              {entry.review.scores.comeBack}
+                            </strong>
                           </span>
                         </div>
                       </div>

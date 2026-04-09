@@ -946,13 +946,15 @@ img {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  max-width: 100%;
 }
 
 .tier-score-chip {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 8px;
+  max-width: 100%;
+  padding: 6px 10px;
   border: 1px solid rgba(31, 78, 216, 0.14);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(219, 229, 255, 0.62), rgba(255, 255, 255, 0.94));
@@ -964,22 +966,25 @@ img {
 .tier-score-chip-label {
   color: #4e5a72;
   font-family: var(--font-editor-mono), monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.12em;
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  line-height: 1;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .tier-score-chip-value {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 30px;
-  min-height: 30px;
-  padding: 0 8px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0 6px;
+  flex-shrink: 0;
   border-radius: 999px;
   background: #1f4ed8;
   color: white;
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   line-height: 1;
 }
 

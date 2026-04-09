@@ -16,15 +16,18 @@ import {
   getTodayReview,
   getWeekSTier,
   maxTierEntries,
+  moveBoardEntryBetweenTiers,
   normalizeDayKey,
   normalizeMiniAppUrl,
   pickAppForDay,
+  tiers,
   type Tier,
   type CustomMiniAppInput,
   type MiniApp,
   type ReviewDraft,
   type ShareTemplate,
   type StoredReview,
+  type TierMoveDirection,
   upsertCustomMiniApp,
   upsertReview,
 } from "@/lib/app-ladder";
@@ -57,6 +60,17 @@ type DeleteCustomMiniAppResult =
 type DeleteBoardEntryResult =
   | { status: "missing"; app: null }
   | { status: "deleted"; app: MiniApp };
+
+type MoveBoardEntryResult =
+  | { status: "missing"; app: null }
+  | { status: "blocked"; app: MiniApp; tier: Tier }
+  | {
+      status: "moved";
+      app: MiniApp;
+      fromTier: Tier;
+      toTier: Tier;
+      swappedApp: MiniApp | null;
+    };
 
 type SaveReviewResult =
   | { status: "saved"; review: StoredReview }
@@ -238,6 +252,62 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     return { status: "deleted", app: existingApp };
   }
 
+  function moveBoardEntry(
+    appId: string,
+    direction: TierMoveDirection,
+  ): MoveBoardEntryResult {
+    const existingApp = findMiniApp(apps, appId);
+
+    if (!existingApp) {
+      return { status: "missing", app: null };
+    }
+
+    const visibleBoard = buildTierBoard(apps, loadState.reviews).map((column) => ({
+      ...column,
+      entries: column.entries.filter((entry) => !loadState.hiddenBoardAppIds.includes(entry.app.id)),
+    }));
+    const sourceIndex = visibleBoard.findIndex((column) =>
+      column.entries.some((entry) => entry.app.id === appId),
+    );
+
+    if (sourceIndex < 0) {
+      return { status: "missing", app: null };
+    }
+
+    const targetIndex = direction === "up" ? sourceIndex - 1 : sourceIndex + 1;
+
+    if (targetIndex < 0 || targetIndex >= tiers.length) {
+      return {
+        status: "blocked",
+        app: existingApp,
+        tier: visibleBoard[sourceIndex].tier,
+      };
+    }
+
+    const sourceColumn = visibleBoard[sourceIndex];
+    const targetColumn = visibleBoard[targetIndex];
+    const swappedApp = targetColumn.entries[0]?.app ?? null;
+
+    setLoadState((current) => ({
+      ...current,
+      reviews: moveBoardEntryBetweenTiers(
+        current.reviews,
+        appId,
+        sourceColumn.tier,
+        targetColumn.tier,
+        swappedApp?.id ?? null,
+      ),
+    }));
+
+    return {
+      status: "moved",
+      app: existingApp,
+      fromTier: sourceColumn.tier,
+      toTier: targetColumn.tier,
+      swappedApp,
+    };
+  }
+
   function saveReview(): SaveReviewResult {
     if (!selectedApp) {
       return null;
@@ -308,6 +378,7 @@ export function useAppLadderState(initialAppId?: string, initialDay?: string) {
     weeklySTier,
     dismissLoadError,
     deleteBoardEntry,
+    moveBoardEntry,
     deleteCustomApp,
     isLoaded: loadState.isLoaded,
   };

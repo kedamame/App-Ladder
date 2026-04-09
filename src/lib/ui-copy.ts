@@ -107,12 +107,20 @@ export const uiCopy = {
     ladder: {
       kicker: "Ladder",
       title: "A tier board for the miniapps you reviewed",
-      body: "Each saved review places a miniapp into S / A / B / C / D using its latest rating. Filter by category, keep one miniapp in each tier, and save the full board as an image.",
+      body: "Each saved review places a miniapp into S / A / B / C / D using its latest rating. Filter by category, keep one miniapp in each tier, swap it with the tier above or below, and save the full board as an image.",
       all: "All",
       savePng: "Save board PNG",
       notReady: "Board image preview is not ready yet.",
       pngSaved: "Board image saved as PNG.",
       pngFailed: "Board image export failed in this browser.",
+      moveUpAction: "Move up one tier",
+      moveDownAction: "Move down one tier",
+      moveDone: (name: string, tier: string) => `${name} moved to ${tier} tier.`,
+      moveSwapped: (name: string, tier: string, swapName: string, swapTier: string) =>
+        `${name} moved to ${tier} tier and ${swapName} moved to ${swapTier} tier.`,
+      moveBlocked: (name: string, tier: string) =>
+        `${name} is already at the edge of the board in ${tier} tier.`,
+      moveMissing: "That board entry is no longer available.",
       deleteAction: "Remove",
       deleteConfirm: (name: string) =>
         `Remove ${name} from the current board? The miniapp will stay on your shelf.`,

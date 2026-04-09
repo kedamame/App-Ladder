@@ -57,6 +57,7 @@ export function AppLadderShell({
     draft,
     hiddenBoardAppIds,
     loadError,
+    moveBoardEntry,
     recentEntries,
     reviews,
     reviewCount,
@@ -88,6 +89,28 @@ export function AppLadderShell({
   const ladderCardRef = useRef<HTMLElement | null>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
   const text = uiCopy[locale];
+  const ladderMoveText =
+    locale === "ja"
+      ? {
+          upAction: "1つ上の tier と入れ替える",
+          downAction: "1つ下の tier と入れ替える",
+          done: (name: string, tier: string) => `${name} を ${tier} tier へ移動しました。`,
+          swapped: (name: string, tier: string, swapName: string, swapTier: string) =>
+            `${name} を ${tier} tier へ移動し、${swapName} を ${swapTier} tier へ入れ替えました。`,
+          blocked: (name: string, tier: string) =>
+            `${name} はすでに ${tier} tier の端にあります。`,
+          missing: "その board entry は見つかりませんでした。",
+        }
+      : {
+          upAction: "Move up one tier",
+          downAction: "Move down one tier",
+          done: (name: string, tier: string) => `${name} moved to ${tier} tier.`,
+          swapped: (name: string, tier: string, swapName: string, swapTier: string) =>
+            `${name} moved to ${tier} tier and ${swapName} moved to ${swapTier} tier.`,
+          blocked: (name: string, tier: string) =>
+            `${name} is already at the edge of the board in ${tier} tier.`,
+          missing: "That board entry is no longer available.",
+        };
 
   const surface = isLoading
     ? text.detectSurface
@@ -310,6 +333,34 @@ export function AppLadderShell({
     if (selectedAppId === app.id) {
       setReviewStatus("");
     }
+  }
+
+  function handleMoveBoardEntry(app: MiniApp, direction: "up" | "down") {
+    const result = moveBoardEntry(app.id, direction);
+
+    if (result.status === "missing") {
+      setLadderStatus(ladderMoveText.missing);
+      return;
+    }
+
+    if (result.status === "blocked") {
+      setLadderStatus(ladderMoveText.blocked(result.app.name, result.tier));
+      return;
+    }
+
+    if (result.swappedApp) {
+      setLadderStatus(
+        ladderMoveText.swapped(
+          result.app.name,
+          result.toTier,
+          result.swappedApp.name,
+          result.fromTier,
+        ),
+      );
+      return;
+    }
+
+    setLadderStatus(ladderMoveText.done(result.app.name, result.toTier));
   }
 
   async function handleAutofillFromUrl() {
@@ -837,13 +888,33 @@ export function AppLadderShell({
                       <div className="tier-entry-copy">
                         <div className="tier-entry-head">
                           <strong>{`${entry.review.tier} tier | ${entry.app.name}`}</strong>
-                          <button
-                            className="icon-button-delete"
-                            onClick={() => handleDeleteBoardEntry(entry.app)}
-                            type="button"
-                          >
-                            {text.ladder.deleteAction}
-                          </button>
+                          <div className="tier-entry-actions">
+                            <button
+                              aria-label={ladderMoveText.upAction}
+                              className="icon-button-tier"
+                              disabled={column.tier === tiers[0]}
+                              onClick={() => handleMoveBoardEntry(entry.app, "up")}
+                              type="button"
+                            >
+                              ↑
+                            </button>
+                            <button
+                              aria-label={ladderMoveText.downAction}
+                              className="icon-button-tier"
+                              disabled={column.tier === tiers[tiers.length - 1]}
+                              onClick={() => handleMoveBoardEntry(entry.app, "down")}
+                              type="button"
+                            >
+                              ↓
+                            </button>
+                            <button
+                              className="icon-button-delete"
+                              onClick={() => handleDeleteBoardEntry(entry.app)}
+                              type="button"
+                            >
+                              {text.ladder.deleteAction}
+                            </button>
+                          </div>
                         </div>
                         <p>{entry.review.note || text.ladder.noNote}</p>
                         <div className="tier-score-grid">

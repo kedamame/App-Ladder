@@ -2,6 +2,7 @@ export const tiers = ["S", "A", "B", "C", "D"] as const;
 export const maxTierEntries = 1;
 
 export const metricKeys = ["fun", "polish", "comeBack"] as const;
+export const tierMoveDirections = ["up", "down"] as const;
 
 const stickerPalettes = [
   { accent: "#ff7b54", wash: "#ffe0d2" },
@@ -20,6 +21,7 @@ const stickerPalettes = [
 
 export type Tier = (typeof tiers)[number];
 export type MetricKey = (typeof metricKeys)[number];
+export type TierMoveDirection = (typeof tierMoveDirections)[number];
 
 export type MiniApp = {
   id: string;
@@ -318,6 +320,42 @@ export function buildTierBoard(apps: MiniApp[], reviews: StoredReview[]) {
       .filter((entry) => entry.review.tier === tier)
       .sort((left, right) => right.review.updatedAt.localeCompare(left.review.updatedAt)),
   }));
+}
+
+export function moveBoardEntryBetweenTiers(
+  reviews: StoredReview[],
+  appId: string,
+  fromTier: Tier,
+  toTier: Tier,
+  swapAppId?: string | null,
+) {
+  const latestReviews = getLatestReviewsByApp(reviews);
+  const sourceReview = latestReviews.find((review) => review.appId === appId);
+  const swapReview = swapAppId
+    ? latestReviews.find((review) => review.appId === swapAppId)
+    : null;
+
+  if (!sourceReview) {
+    return reviews;
+  }
+
+  return reviews.map((review) => {
+    if (review.id === sourceReview.id) {
+      return {
+        ...review,
+        tier: toTier,
+      };
+    }
+
+    if (swapReview && review.id === swapReview.id) {
+      return {
+        ...review,
+        tier: fromTier,
+      };
+    }
+
+    return review;
+  });
 }
 
 export function getRecentEntries(apps: MiniApp[], reviews: StoredReview[], limit = 4) {

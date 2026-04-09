@@ -662,6 +662,12 @@ img {
   gap: 8px;
 }
 
+.tier-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .field-stack {
   display: grid;
   gap: 18px;
@@ -734,6 +740,39 @@ img {
     background 160ms ease,
     color 160ms ease,
     border-color 160ms ease;
+}
+
+.icon-button-tier {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  border: 1px solid rgba(22, 33, 61, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.icon-button-tier:hover:not(:disabled) {
+  border-color: rgba(31, 78, 216, 0.24);
+  background: rgba(219, 229, 255, 0.8);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.icon-button-tier:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .icon-button-delete:hover {

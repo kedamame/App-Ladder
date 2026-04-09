@@ -926,7 +926,7 @@ export function AppLadderShell({
                             </button>
                           </div>
                         </div>
-                        <p>{entry.review.note || text.ladder.noNote}</p>
+                        {entry.review.note ? <p>{entry.review.note}</p> : null}
                         <div className="tier-score-grid">
                           <span className="tier-score-chip">
                             <span className="tier-score-chip-label">{text.review.fun}</span>

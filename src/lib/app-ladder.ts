@@ -384,22 +384,17 @@ export function getShareEntriesForTemplate(
   reviews: StoredReview[],
 ) {
   const entries = buildTierEntries(apps, reviews);
-  const rankedEntries = [...entries]
-    .sort((left, right) => {
-      if (left.review.tier === right.review.tier) {
-        return right.averageScore - left.averageScore;
-      }
-
-      return tiers.indexOf(left.review.tier) - tiers.indexOf(right.review.tier);
-    })
-    .slice(0, 3);
+  const board = buildTierBoard(apps, reviews);
+  const topTierEntries = ["S", "A", "B"]
+    .map((tier) => board.find((column) => column.tier === tier)?.entries[0] ?? null)
+    .filter((entry): entry is TierEntry => Boolean(entry));
 
   if (template === "top-3") {
-    return rankedEntries;
+    return topTierEntries;
   }
 
   if (template === "hidden-gem") {
-    const hiddenGemEntry = rankedEntries[2] ?? rankedEntries[0] ?? null;
+    const hiddenGemEntry = topTierEntries[2] ?? topTierEntries[0] ?? null;
     return hiddenGemEntry ? [hiddenGemEntry] : [];
   }
 

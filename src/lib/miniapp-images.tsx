@@ -4,6 +4,7 @@ type ImageKind =
   | "icon"
   | "splash"
   | "og"
+  | "thumbnail"
   | "embed"
   | "screenshot-1"
   | "screenshot-2"
@@ -47,6 +48,15 @@ const imagePresets: Record<
     subtitle: "Review one Base miniapp a day and grow your private tier board.",
     accent: "#0057ff",
     wash: "#ffe06b",
+  },
+  thumbnail: {
+    width: 1200,
+    height: 628,
+    kicker: "BASE MINIAPP",
+    title: "App Ladder",
+    subtitle: "Review miniapps, grow your tier board, and share your favorites.",
+    accent: "#0057ff",
+    wash: "#dfe8ff",
   },
   embed: {
     width: 900,

@@ -65,13 +65,13 @@ Optional for later wallet expansion:
 
 These are intentionally left as placeholders until deployment details are known:
 
-- `NEXT_PUBLIC_BASE_APP_ID`
 - Farcaster `accountAssociation`
 - ERC-8021 attribution defaults
 
 ## Production TODO
 
-- Replace placeholder app URL, app ID, and Farcaster manifest signature values
+- Replace placeholder app URL and Farcaster manifest signature values
+- Keep `NEXT_PUBLIC_BASE_APP_ID=69d7aed0ec96f8d98e3ef333` unless Base issues a new App ID
 - Decide whether to add optional auto-discovery later, while keeping the no-backend fallback of manual registration
 - Decide whether to expand miniapp manifest parsing beyond `/.well-known/farcaster.json` and standard icon tags for more miniapp surfaces
 - Decide whether to re-enable wallet connectors once project IDs and target wallet UX are finalized

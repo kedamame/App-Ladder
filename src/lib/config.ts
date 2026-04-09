@@ -3,7 +3,8 @@ const fallbackAppUrl = "http://localhost:3000";
 export const appConfig = {
   name: "App Ladder",
   appUrl: process.env.NEXT_PUBLIC_APP_URL?.trim() || fallbackAppUrl,
-  baseAppId: process.env.NEXT_PUBLIC_BASE_APP_ID?.trim() || "TODO_BASE_APP_ID",
+  baseAppId:
+    process.env.NEXT_PUBLIC_BASE_APP_ID?.trim() || "69d7aed0ec96f8d98e3ef333",
   walletConnectProjectId:
     process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID?.trim() || "",
   accountAssociation: {

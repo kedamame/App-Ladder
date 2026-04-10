@@ -86,6 +86,7 @@ export function AppLadderShell({
   const [isAutofilling, setIsAutofilling] = useState(false);
   const [shareStatus, setShareStatus] = useState("");
   const [isExportingLadder, setIsExportingLadder] = useState(false);
+  const [ladderExportImageUrls, setLadderExportImageUrls] = useState<Record<string, string>>({});
   const ladderCardRef = useRef<HTMLElement | null>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
   const text = uiCopy[locale];
@@ -240,9 +241,11 @@ export function AppLadderShell({
     }
 
     try {
+      const exportImageUrls = await loadLadderExportImageUrls();
+      setLadderExportImageUrls(exportImageUrls);
       setIsExportingLadder(true);
       await new Promise<void>((resolve) => {
-        window.requestAnimationFrame(() => resolve());
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()));
       });
       const dataUrl = await toPng(ladderCardRef.current, {
         cacheBust: true,
@@ -257,7 +260,34 @@ export function AppLadderShell({
       setLadderStatus(text.ladder.pngFailed);
     } finally {
       setIsExportingLadder(false);
+      setLadderExportImageUrls({});
     }
+  }
+
+  async function loadLadderExportImageUrls() {
+    const entries = filteredBoard.flatMap((column) => column.entries);
+    const uniqueApps = Array.from(new Map(entries.map((entry) => [entry.app.id, entry.app])).values());
+    const loadedImages = await Promise.all(
+      uniqueApps.map(async (app) => {
+        try {
+          const response = await fetch(
+            `/api/image-data-url?url=${encodeURIComponent(app.imageUrl)}`,
+            { cache: "no-store" },
+          );
+
+          if (!response.ok) {
+            return [app.id, ""] as const;
+          }
+
+          const payload = (await response.json()) as { dataUrl?: string };
+          return [app.id, payload.dataUrl ?? ""] as const;
+        } catch {
+          return [app.id, ""] as const;
+        }
+      }),
+    );
+
+    return Object.fromEntries(loadedImages.filter(([, dataUrl]) => dataUrl));
   }
 
   function handleSaveReview() {
@@ -896,7 +926,12 @@ export function AppLadderShell({
                 {column.entries.length ? (
                   column.entries.map((entry) => (
                     <div key={entry.review.id} className="tier-entry tier-entry-refined">
-                      <AppSticker app={entry.app} compact />
+                      <AppSticker
+                        app={entry.app}
+                        compact
+                        imageUrl={isExportingLadder ? ladderExportImageUrls[entry.app.id] : undefined}
+                        preferBadge={isExportingLadder && !ladderExportImageUrls[entry.app.id]}
+                      />
                       <div className="tier-entry-copy">
                         <div className="tier-entry-head">
                           <strong>{`${entry.review.tier} tier | ${entry.app.name}`}</strong>
@@ -1074,10 +1109,16 @@ export function AppLadderShell({
 function AppSticker({
   app,
   compact = false,
+  imageUrl,
+  preferBadge = false,
 }: {
   app: MiniApp;
   compact?: boolean;
+  imageUrl?: string;
+  preferBadge?: boolean;
 }) {
+  const displayImageUrl = preferBadge ? "" : imageUrl ?? app.imageUrl;
+
   return (
     <div
       className={clsx("app-sticker", compact && "app-sticker-compact")}
@@ -1088,8 +1129,12 @@ function AppSticker({
         } as CSSProperties
       }
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img alt={app.name} className="app-sticker-image" src={app.imageUrl} />
+      {displayImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img alt={app.name} className="app-sticker-image" src={displayImageUrl} />
+      ) : (
+        <span>{app.badge}</span>
+      )}
     </div>
   );
 }

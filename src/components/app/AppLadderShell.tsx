@@ -40,6 +40,7 @@ const emptyCustomAppDraft: CustomMiniAppInput = {
   imageUrl: "",
   externalUrl: "",
 };
+const showDeveloperFooter = process.env.NODE_ENV === "development";
 
 export function AppLadderShell({
   initialAppId,
@@ -1096,12 +1097,14 @@ export function AppLadderShell({
         </article>
       </section>
 
-      <footer className="footer-note footer-note-refined">
-        <p>{isLoaded ? text.footerLoaded : text.footerLoading}</p>
-        <Link href="/.well-known/farcaster.json" target="_blank">
-          {text.inspectManifest}
-        </Link>
-      </footer>
+      {showDeveloperFooter ? (
+        <footer className="footer-note footer-note-refined">
+          <p>{isLoaded ? text.footerLoaded : text.footerLoading}</p>
+          <Link href="/.well-known/farcaster.json" target="_blank">
+            {text.inspectManifest}
+          </Link>
+        </footer>
+      ) : null}
     </main>
   );
 }

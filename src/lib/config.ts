@@ -1,4 +1,4 @@
-const fallbackAppUrl = "http://localhost:3000";
+const fallbackAppUrl = "https://app-ladder.vercel.app";
 
 export const appConfig = {
   name: "App Ladder",
@@ -15,14 +15,16 @@ export const appConfig = {
   },
 };
 
-export function createMiniAppEmbed() {
+type FarcasterActionType = "launch_miniapp" | "launch_frame";
+
+export function createMiniAppEmbed(actionType: FarcasterActionType = "launch_miniapp") {
   return {
     version: "1",
     imageUrl: `${appConfig.appUrl}/opengraph-image`,
     button: {
       title: "Open App Ladder",
       action: {
-        type: "launch_miniapp",
+        type: actionType,
         name: appConfig.name,
         url: appConfig.appUrl,
         splashImageUrl: `${appConfig.appUrl}/splash.png`,

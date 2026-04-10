@@ -39,7 +39,7 @@ npm run dev
 
 Required for real production registration:
 
-- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_APP_URL=https://app-ladder.vercel.app`
 - `NEXT_PUBLIC_BASE_APP_ID`
 - `FARCASTER_HEADER`
 - `FARCASTER_PAYLOAD`
@@ -70,13 +70,14 @@ These are intentionally left as placeholders until deployment details are known:
 
 ## Production TODO
 
-- Replace placeholder app URL and Farcaster manifest signature values
+- Keep the deployed `NEXT_PUBLIC_APP_URL` on Vercel exactly aligned with the domain registered in Farcaster Manifest Tool
+- Replace placeholder Farcaster manifest signature values
 - Keep `NEXT_PUBLIC_BASE_APP_ID=69d7aed0ec96f8d98e3ef333` unless Base issues a new App ID
 - Decide whether to add optional auto-discovery later, while keeping the no-backend fallback of manual registration
 - Decide whether to expand miniapp manifest parsing beyond `/.well-known/farcaster.json` and standard icon tags for more miniapp surfaces
 - Decide whether to re-enable wallet connectors once project IDs and target wallet UX are finalized
 - Register the deployed domain with Warpcast Manifest Tool
-- Verify Farcaster / Base App embeds against the final production domain
+- Verify Farcaster / Base App embeds against the final production domain; the app emits both `fc:miniapp` and legacy `fc:frame` metadata
 
 ## Verification commands
 

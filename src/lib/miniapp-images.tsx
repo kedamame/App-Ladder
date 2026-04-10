@@ -99,6 +99,189 @@ const imagePresets: Record<
 export function createMiniAppImage(kind: ImageKind) {
   const preset = imagePresets[kind];
 
+  if (kind === "icon") {
+    const tierRows = [
+      { label: "S", width: 280, color: "#0057ff", ink: "#ffffff" },
+      { label: "A", width: 230, color: "#fff0b8", ink: "#16213d" },
+      { label: "B", width: 185, color: "#f7f1e4", ink: "#16213d" },
+    ];
+
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            position: "relative",
+            overflow: "hidden",
+            alignItems: "center",
+            justifyContent: "center",
+            background:
+              "linear-gradient(145deg, #06111f 0%, #10213c 48%, #0057ff 100%)",
+            color: "#f9f4e8",
+            fontFamily: "sans-serif",
+            padding: 76,
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              left: -180,
+              top: -160,
+              width: 520,
+              height: 520,
+              borderRadius: 999,
+              background: "#ffe06b",
+              opacity: 0.34,
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              right: -130,
+              bottom: -120,
+              width: 520,
+              height: 520,
+              borderRadius: 116,
+              background: "#f9f4e8",
+              opacity: 0.18,
+              transform: "rotate(18deg)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: 96,
+              bottom: 104,
+              width: 760,
+              height: 82,
+              borderRadius: 999,
+              background: "rgba(249, 244, 232, 0.12)",
+              transform: "rotate(-7deg)",
+            }}
+          />
+
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              position: "relative",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              borderRadius: 104,
+              border: "4px solid rgba(249, 244, 232, 0.46)",
+              background:
+                "linear-gradient(160deg, rgba(249,244,232,0.96), rgba(223,232,255,0.94))",
+              color: "#101722",
+              padding: 56,
+              transform: "rotate(-2deg)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignSelf: "flex-start",
+                borderRadius: 999,
+                border: "3px solid rgba(16, 23, 34, 0.12)",
+                padding: "14px 22px",
+                background: "rgba(255, 255, 255, 0.74)",
+                fontSize: 34,
+                fontWeight: 800,
+                letterSpacing: "0.14em",
+              }}
+            >
+              APP LADDER
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 44,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  color: "#0057ff",
+                  fontSize: 246,
+                  lineHeight: 0.78,
+                  letterSpacing: "-0.12em",
+                  fontWeight: 900,
+                }}
+              >
+                AL
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                {tierRows.map((row) => (
+                  <div
+                    key={row.label}
+                    style={{
+                      display: "flex",
+                      width: row.width,
+                      minHeight: 96,
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      borderRadius: 30,
+                      border: "3px solid rgba(16, 23, 34, 0.12)",
+                      background: row.color,
+                      color: row.ink,
+                      padding: "0 28px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 58,
+                        fontWeight: 900,
+                        letterSpacing: "-0.08em",
+                      }}
+                    >
+                      {row.label}
+                    </span>
+                    <span
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 999,
+                        background:
+                          row.label === "S"
+                            ? "rgba(255, 255, 255, 0.82)"
+                            : "rgba(0, 87, 255, 0.22)",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                color: "#4d5b78",
+                fontSize: 30,
+                fontWeight: 800,
+                letterSpacing: "0.12em",
+              }}
+            >
+              <span>MINIAPP</span>
+              <span>TIER BOARD</span>
+            </div>
+          </div>
+        </div>
+      ),
+      {
+        width: preset.width,
+        height: preset.height,
+      },
+    );
+  }
+
   return new ImageResponse(
     (
       <div
@@ -114,7 +297,7 @@ export function createMiniAppImage(kind: ImageKind) {
           color: "#16213d",
           fontFamily: "sans-serif",
           padding:
-            kind === "icon" || kind === "splash"
+            kind === "splash"
               ? Math.round(preset.width * 0.12)
               : 72,
         }}
@@ -147,9 +330,9 @@ export function createMiniAppImage(kind: ImageKind) {
               display: "flex",
               borderRadius: 999,
               border: "2px solid rgba(22, 33, 61, 0.12)",
-              padding: kind === "icon" || kind === "splash" ? "8px 12px" : "12px 18px",
+              padding: kind === "splash" ? "8px 12px" : "12px 18px",
               background: "rgba(255, 255, 255, 0.82)",
-              fontSize: kind === "icon" || kind === "splash" ? 28 : 32,
+              fontSize: kind === "splash" ? 28 : 32,
               letterSpacing: "0.16em",
               alignSelf: "flex-start",
             }}
@@ -162,13 +345,13 @@ export function createMiniAppImage(kind: ImageKind) {
           <div
             style={{
               display: "flex",
-              width: kind === "icon" || kind === "splash" ? "100%" : 220,
-              height: kind === "icon" || kind === "splash" ? "100%" : 220,
+              width: kind === "splash" ? "100%" : 220,
+              height: kind === "splash" ? "100%" : 220,
               alignItems: "center",
               justifyContent: "center",
-              alignSelf: kind === "icon" || kind === "splash" ? "center" : "flex-start",
-              padding: kind === "icon" || kind === "splash" ? "0" : "18px 0",
-              borderRadius: kind === "icon" || kind === "splash" ? 180 : 36,
+              alignSelf: kind === "splash" ? "center" : "flex-start",
+              padding: kind === "splash" ? "0" : "18px 0",
+              borderRadius: kind === "splash" ? 180 : 36,
               background: `linear-gradient(135deg, ${preset.wash}, white)`,
               border: "2px solid rgba(22, 33, 61, 0.1)",
               transform: "rotate(-4deg)",
@@ -178,9 +361,7 @@ export function createMiniAppImage(kind: ImageKind) {
               style={{
                 color: preset.accent,
                 fontSize:
-                  kind === "icon"
-                    ? 320
-                    : kind === "splash"
+                  kind === "splash"
                       ? 76
                       : kind === "embed"
                         ? 90
@@ -189,16 +370,14 @@ export function createMiniAppImage(kind: ImageKind) {
                 letterSpacing: "-0.05em",
               }}
             >
-              {kind === "icon" || kind === "splash" ? "AL" : "S/A"}
+              {kind === "splash" ? "AL" : "S/A"}
             </span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div
               style={{
                 fontSize:
-                  kind === "icon"
-                    ? 144
-                    : kind === "splash"
+                  kind === "splash"
                       ? 42
                       : kind === "embed"
                         ? 66
@@ -210,7 +389,7 @@ export function createMiniAppImage(kind: ImageKind) {
             >
               {preset.title}
             </div>
-            {kind !== "icon" && kind !== "splash" ? (
+            {kind !== "splash" ? (
               <div
                 style={{
                   maxWidth: kind === "embed" ? 620 : 860,
